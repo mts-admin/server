@@ -11,7 +11,7 @@
     "start:prod": "NODE_ENV=production nodemon src/server.js",
     "debug": "ndb server.js"
   },
-  "author": "",
+  "author": "Vitalii Chornous",
   "license": "ISC",
   "dependencies": {
     "@babel/polyfill": "^7.12.1",

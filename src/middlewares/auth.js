@@ -5,6 +5,7 @@ const createError = require('http-errors');
 const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync');
 const httpCodes = require('../constants/http-codes');
+const config = require('../../config');
 
 const getMe = (req, res, next) => {
   req.params.id = req.user.id;
@@ -33,7 +34,7 @@ const protect = catchAsync(async (req, res, next) => {
   }
 
   // Verification token
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const decoded = await promisify(jwt.verify)(token, config.jwtSecret);
 
   // Check if user still exists
   const currentUser = await User.findById(decoded.id);
