@@ -9,6 +9,7 @@ const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const createError = require('http-errors');
 
+const router = require('./routes');
 const globalErrorHandler = require('./controllers/error-controller');
 const httpCodes = require('./constants/http-codes');
 
@@ -31,7 +32,7 @@ if (process.env.NODE_ENV === 'development') {
 // Limit requests from same API
 const limiter = rateLimit({
   max: 1000,
-  windowMs: 60 * 60 * 1000,
+  windowMs: 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour!',
 });
 app.use('/api', limiter);
@@ -57,7 +58,7 @@ app.use(
 );
 
 // 2) ROUTES
-// app.use('/api/v1/', router);
+app.use('/api/v1', router);
 
 // for routes which are not exists
 app.all('*', (req, res, next) => {
