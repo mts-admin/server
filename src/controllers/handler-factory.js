@@ -1,7 +1,7 @@
 const createError = require('http-errors');
 
 const APIFeatures = require('../utils/api-features');
-const catchAsync = require('../utils/catchAsync');
+const catchAsync = require('../utils/catch-async');
 const httpCodes = require('../constants/http-codes');
 const responseStatus = require('../constants/response-status');
 

@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
-// const pug = require('pug');
-// const { htmlToText } = require('html-to-text');
+const pug = require('pug');
+const { htmlToText } = require('html-to-text');
 const config = require('../../config');
 
 class Email {
@@ -33,35 +33,31 @@ class Email {
   }
 
   async _send(template, subject) {
-    // TODO: add templates
-    // const html = pug.renderFile(`${__dirname}/../templates/${template}.pug`, {
-    //   firstName: this.firstName,
-    //   url: this.url,
-    //   subject,
-    // });
-    // const mailOptions = {
-    //   from: this.from,
-    //   to: this.to,
-    //   subject,
-    //   html,
-    //   text: htmlToText(html),
-    // };
-    // await this._newTransport().sendMail(mailOptions);
-  }
+    const html = pug.renderFile(`${__dirname}/../templates/${template}.pug`, {
+      firstName: this.firstName,
+      url: this.url,
+      subject,
+    });
 
-  async sendWelcome() {
-    await this._send('welcome', 'Welcome to the MTS Family!');
+    const mailOptions = {
+      from: this.from,
+      to: this.to,
+      subject,
+      html,
+      text: htmlToText(html),
+    };
+    await this._newTransport().sendMail(mailOptions);
   }
 
   async sendPasswordReset() {
     await this._send(
-      'passwordReset',
-      'Your password reset token (valid for only 10 minutes)'
+      'password-reset',
+      'Your password reset link (valid for only 10 minutes)'
     );
   }
 
   async sendInvitation() {
-    await this._send('inviteUser', 'You has been invited to MTS Admin site');
+    await this._send('invite-user', 'You has been invited to MTS Admin site');
   }
 }
 
