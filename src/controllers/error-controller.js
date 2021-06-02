@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const httpCodes = require('../constants/http-codes');
 const responseStatus = require('../constants/response-status');
+const config = require('../../config');
 
 const handleJWTError = () =>
   createError(httpCodes.UNAUTHORIZED, 'Invalid token. Please log in again!');
@@ -57,9 +58,9 @@ module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || httpCodes.SERVER_ERROR;
   err.status = responseStatus.ERROR;
 
-  if (process.env.NODE_ENV === 'development') {
+  if (config.nodeEnv === 'development') {
     sendErrorDev(err, req, res);
-  } else if (process.env.NODE_ENV === 'production') {
+  } else if (config.nodeEnv === 'production') {
     let error = Object.create(err);
 
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);

@@ -12,6 +12,7 @@ const createError = require('http-errors');
 const router = require('./routes');
 const globalErrorHandler = require('./controllers/error-controller');
 const httpCodes = require('./constants/http-codes');
+const config = require('../config');
 
 const app = express();
 
@@ -25,7 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet());
 
 // Development logging
-if (process.env.NODE_ENV === 'development') {
+if (config.nodeEnv === 'development') {
   app.use(morgan('dev'));
 }
 

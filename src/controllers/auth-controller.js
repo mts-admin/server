@@ -12,6 +12,7 @@ const {
   generateRandomTokens,
 } = require('../utils/general');
 const { USER_STATUS } = require('../constants/users');
+const config = require('../../config');
 
 const inviteUser = catchAsync(async (req, res, next) => {
   const [invitationToken, invitationTokenEncrypted] = generateRandomTokens();
@@ -27,7 +28,7 @@ const inviteUser = catchAsync(async (req, res, next) => {
   });
 
   try {
-    const registrationUrl = `${process.env.CLIENT_URL}/signup-by-invitation/${invitationToken}`;
+    const registrationUrl = `${config.clientUrl}/signup-by-invitation/${invitationToken}`;
 
     await new Email(newUser, registrationUrl).sendInvitation();
 
@@ -149,7 +150,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const resetURL = `${config.clientUrl}/reset-password/${resetToken}`;
 
     await new Email(user, resetURL).sendPasswordReset();
 

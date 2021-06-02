@@ -1,32 +1,33 @@
 const nodemailer = require('nodemailer');
 // const pug = require('pug');
 // const { htmlToText } = require('html-to-text');
+const config = require('../../config');
 
 class Email {
   constructor(user, url) {
     this.to = user.email;
-    this.from = `MTS Admin <${process.env.EMAIL_FROM}>`;
+    this.from = `MTS Admin <${config.emailFrom}>`;
     this.firstName = user.name.split(' ')[0];
     this.url = url;
   }
 
   _newTransport() {
-    if (process.env.NODE_ENV === 'production') {
+    if (config.nodeEnv === 'production') {
       return nodemailer.createTransport({
         service: 'SendGrid',
         auth: {
-          user: process.env.SENDGRID_USERNAME,
-          pass: process.env.SENDGRID_PASSWORD,
+          user: config.sendGrid.userName,
+          pass: config.sendGrid.password,
         },
       });
     }
 
     return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
+      host: config.mailtrap.host,
+      port: config.mailtrap.port,
       auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
+        user: config.mailtrap.userName,
+        pass: config.mailtrap.password,
       },
     });
   }
