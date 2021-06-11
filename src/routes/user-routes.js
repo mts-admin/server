@@ -29,13 +29,13 @@ router.use(protect);
 
 router.post(
   '/invitation',
-  restrictTo([USER_ROLE.ADMIN, USER_ROLE.OWNER]),
+  restrictTo(USER_ROLE.ADMIN, USER_ROLE.OWNER),
   inviteUser
 );
 
 router.delete(
   '/invitation/:token',
-  restrictTo([USER_ROLE.ADMIN, USER_ROLE.OWNER]),
+  restrictTo(USER_ROLE.ADMIN, USER_ROLE.OWNER),
   cancelInvitation
 );
 
