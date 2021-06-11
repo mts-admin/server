@@ -7,6 +7,12 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const createError = require('http-errors');
+
+const router = require('./routes');
+const globalErrorHandler = require('./controllers/error-controller');
+const httpCodes = require('./constants/http-codes');
+const config = require('../config');
 
 const app = express();
 
@@ -20,14 +26,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet());
 
 // Development logging
-if (process.env.NODE_ENV === 'development') {
+if (config.nodeEnv === 'development') {
   app.use(morgan('dev'));
 }
 
 // Limit requests from same API
 const limiter = rateLimit({
   max: 1000,
-  windowMs: 60 * 60 * 1000,
+  windowMs: 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour!',
 });
 app.use('/api', limiter);
@@ -53,14 +59,19 @@ app.use(
 );
 
 // 2) ROUTES
-// app.use('/api/v1/', router);
+app.use('/api/v1', router);
 
 // for routes which are not exists
-// app.all('*', (req, res, next) => {
-//   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
-// });
+app.all('*', (req, res, next) => {
+  next(
+    createError(
+      httpCodes.NOT_FOUND,
+      `Can't find ${req.originalUrl} on this server`
+    )
+  );
+});
 
 // 3) Global error handler
-// app.use(globalErrorHandler);
+app.use(globalErrorHandler);
 
 module.exports = app;

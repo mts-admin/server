@@ -1,3 +1,5 @@
+require('@babel/polyfill');
+
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
@@ -7,10 +9,12 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-dotenv.config({ path: `./.env.${process.env.NODE_ENV}` });
+dotenv.config({ path: `${__dirname}/../.env.${process.env.NODE_ENV}` });
+
+const config = require('../config');
 
 mongoose
-  .connect(process.env.DATABASE, {
+  .connect(config.mongoUrl, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
@@ -20,7 +24,7 @@ mongoose
 
 const app = require('./app');
 
-const port = process.env.PORT || 8000;
+const port = config.port || 8001;
 const server = app.listen(port, () => {
   console.log(`App running on port: ${port}`);
 });
