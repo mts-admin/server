@@ -53,10 +53,7 @@ const getInvitationData = catchAsync(async (req, res, next) => {
 
   const user = await User.findOne({
     'techData.invitationToken': hashedToken,
-  }).populate({
-    path: 'invitedBy',
-    fields: 'name',
-  });
+  }).populate('invitedBy', 'name -_id');
 
   if (!user) {
     return next(
@@ -101,9 +98,18 @@ const signUpByInvitation = catchAsync(async (req, res, next) => {
 const cancelInvitation = catchAsync(async (req, res, next) => {
   const hashedToken = hashString(req.params.token);
 
-  await User.findOneAndDelete({
+  const user = await User.findOneAndDelete({
     'techData.invitationToken': hashedToken,
   });
+
+  if (!user) {
+    return next(
+      createError(
+        httpCodes.NOT_FOUND,
+        'This invitation has been already canceled'
+      )
+    );
+  }
 
   res.status(httpCodes.SUCCESS_DELETED).json({
     status: responseStatus.SUCCESS,
