@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const escapeStringRegexp = require('escape-string-regexp');
 
 const { USER_ROLE } = require('../constants/users');
 
@@ -22,4 +23,23 @@ const generateRandomTokens = () => {
   return [randomToken, randomTokenEncrypted];
 };
 
-module.exports = { validateUserRole, hashString, generateRandomTokens };
+const getSearchMatch = (searchPhrase, fields) => {
+  let searchRe = searchPhrase.trim();
+
+  if (!!searchRe && searchRe.length > 1) {
+    searchRe = new RegExp(`${escapeStringRegexp(searchRe)}`, 'gi');
+
+    return {
+      $or: fields.map((field) => ({ [field]: { $regex: searchRe } })),
+    };
+  }
+
+  return {};
+};
+
+module.exports = {
+  validateUserRole,
+  hashString,
+  generateRandomTokens,
+  getSearchMatch,
+};

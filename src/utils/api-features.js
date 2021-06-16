@@ -1,4 +1,5 @@
 const R = require('ramda');
+const { getSearchMatch } = require('./general');
 
 const EXCLUDES_FIELDS = ['page', 'sort', 'limit', 'fields'];
 
@@ -49,6 +50,16 @@ class APIFeatures {
     const skip = (page - 1) * limit;
 
     this.query = this.query.skip(skip).limit(limit);
+
+    return this;
+  }
+
+  search(...fields) {
+    if (this.queryString.search && !R.isEmpty(fields)) {
+      const match = getSearchMatch(this.queryString.search, fields);
+
+      this.query = this.query.find(match);
+    }
 
     return this;
   }
