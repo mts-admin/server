@@ -3,7 +3,6 @@ const createError = require('http-errors');
 const User = require('../models/user');
 const catchAsync = require('../utils/catch-async');
 const httpCodes = require('../constants/http-codes');
-const responseStatus = require('../constants/response-status');
 const { createSendToken } = require('../utils/auth');
 const Email = require('../utils/email');
 const {
@@ -33,7 +32,7 @@ const inviteUser = catchAsync(async (req, res, next) => {
     await new Email(newUser, registrationUrl).sendInvitation();
 
     res.status(httpCodes.SUCCESS_CREATED).json({
-      status: responseStatus.SUCCESS,
+      status: 'success',
       message: 'Invitation has been sent to email!',
     });
   } catch (err) {
@@ -65,7 +64,7 @@ const getInvitationData = catchAsync(async (req, res, next) => {
   }
 
   res.status(httpCodes.SUCCESS).json({
-    status: responseStatus.SUCCESS,
+    status: 'success',
     data: { user },
   });
 });
@@ -112,7 +111,7 @@ const cancelInvitation = catchAsync(async (req, res, next) => {
   }
 
   res.status(httpCodes.SUCCESS_DELETED).json({
-    status: responseStatus.SUCCESS,
+    status: 'success',
     message: 'Invitation has been canceled successfully!',
   });
 });
@@ -140,7 +139,7 @@ const login = catchAsync(async (req, res, next) => {
 const logout = (req, res) => {
   res.clearCookie('jwt');
 
-  res.status(httpCodes.SUCCESS).json({ status: responseStatus.SUCCESS });
+  res.status(httpCodes.SUCCESS).json({ status: 'success' });
 };
 
 const forgotPassword = catchAsync(async (req, res, next) => {
@@ -161,7 +160,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
     await new Email(user, resetURL).sendPasswordReset();
 
     res.status(httpCodes.SUCCESS).json({
-      status: responseStatus.SUCCESS,
+      status: 'success',
       message: 'Token sent to email!',
     });
   } catch (err) {

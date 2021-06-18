@@ -3,7 +3,6 @@ const createError = require('http-errors');
 const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
 const httpCodes = require('../constants/http-codes');
-const responseStatus = require('../constants/response-status');
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
@@ -16,7 +15,7 @@ exports.getAll = (Model) =>
     const doc = await features.query;
 
     res.status(httpCodes.SUCCESS).json({
-      status: responseStatus.SUCCESS,
+      status: 'success',
       data: doc,
     });
   });
@@ -34,7 +33,7 @@ exports.getOne = (Model, popOptions) =>
     }
 
     res.status(httpCodes.SUCCESS).json({
-      status: responseStatus.SUCCESS,
+      status: 'success',
       data: doc,
     });
   });
@@ -44,7 +43,7 @@ exports.createOne = (Model) =>
     const doc = await Model.create(req.body);
 
     res.status(httpCodes.SUCCESS_CREATED).json({
-      status: responseStatus.SUCCESS,
+      status: 'success',
       data: doc,
     });
   });
@@ -63,7 +62,7 @@ exports.updateOne = (Model) =>
     }
 
     res.status(httpCodes.SUCCESS).json({
-      status: responseStatus.SUCCESS,
+      status: 'success',
       data: doc,
     });
   });
@@ -79,7 +78,7 @@ exports.deleteOne = (Model) =>
     }
 
     res.status(httpCodes.SUCCESS_DELETED).json({
-      status: responseStatus.SUCCESS,
+      status: 'success',
       data: null,
     });
   });
