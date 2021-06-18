@@ -10,4 +10,11 @@ const USER_ROLE = {
   OWNER: 'owner',
 };
 
-module.exports = { USER_STATUS, USER_ROLE };
+const SCHEDULE_PERMISSIONS = {
+  GET: 'GET',
+  POST: 'POST',
+  PATCH: 'PATCH',
+  DELETE: 'DELETE',
+};
+
+module.exports = { USER_STATUS, USER_ROLE, SCHEDULE_PERMISSIONS };

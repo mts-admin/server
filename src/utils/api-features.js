@@ -4,8 +4,8 @@ const { getSearchMatch } = require('./general');
 const EXCLUDES_FIELDS = ['page', 'sort', 'limit', 'fields'];
 
 class APIFeatures {
-  constructor(Model, queryString) {
-    this.query = Model;
+  constructor(query, queryString) {
+    this.query = query;
     this.queryString = queryString;
   }
 
