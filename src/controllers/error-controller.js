@@ -1,4 +1,6 @@
 const createError = require('http-errors');
+const { isCelebrateError } = require('celebrate');
+
 const httpCodes = require('../constants/http-codes');
 const config = require('../../config');
 
@@ -26,6 +28,18 @@ const handleDuplicateFieldsDB = (err) => {
 const handleValidationErrorDB = (err) => {
   const errors = Object.values(err.errors).map((el) => el.message);
   const message = `Invalid input data. ${errors.join('. ')}`;
+
+  return createError(httpCodes.BAD_REQUEST, message);
+};
+
+const handleJoiError = (err) => {
+  const fullMessage = [];
+  // err.details is Map so we need to iterate it by forEach
+  err.details.forEach((value) => {
+    const errorMessage = value.details.map((i) => i.message).join('; ');
+    fullMessage.push(errorMessage);
+  });
+  const message = `Validation error: ${fullMessage.join('; ')}`;
 
   return createError(httpCodes.BAD_REQUEST, message);
 };
@@ -68,6 +82,7 @@ module.exports = (err, req, res, next) => {
       error = handleValidationErrorDB(error);
     if (error.name === 'JsonWebTokenError') error = handleJWTError();
     if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();
+    if (isCelebrateError(error)) error = handleJoiError(error);
 
     sendErrorProd(error, req, res);
   }

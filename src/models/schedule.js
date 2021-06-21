@@ -6,10 +6,13 @@ const scheduleSchema = new Schema({
   name: {
     type: String,
     required: [true, 'Please provide a name of this schedule'],
+    minlength: [3, 'Description must have more or equal then 3 characters'],
+    maxlength: [50, 'Description must have less or equal then 20 characters'],
   },
   description: {
     type: String,
-    maxlength: [50, 'Description must have less or equal then 50 characters'],
+    minlength: [3, 'Description must have more or equal then 3 characters'],
+    maxlength: [100, 'Description must have less or equal then 50 characters'],
   },
   owner: {
     type: Schema.ObjectId,
