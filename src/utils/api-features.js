@@ -1,7 +1,7 @@
 const R = require('ramda');
 const { getSearchMatch } = require('./general');
 
-const EXCLUDES_FIELDS = ['page', 'sort', 'limit', 'fields'];
+const EXCLUDES_FIELDS = ['page', 'sort', 'skip', 'limit', 'fields', 'search'];
 
 class APIFeatures {
   constructor(query, queryString) {
