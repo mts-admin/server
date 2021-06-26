@@ -4,10 +4,10 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const createError = require('http-errors');
+// const xss = require('xss-clean');
 
 const router = require('./routes');
 const globalErrorHandler = require('./controllers/error-controller');
@@ -47,11 +47,9 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 
 // Data sanitization against XSS
-// TODO: add allowed tags
-app.use(xss());
+// app.use(xss());
 
 // Prevent parameter pollution
-// TODO: add whitelist params
 app.use(
   hpp({
     // whitelist: [],

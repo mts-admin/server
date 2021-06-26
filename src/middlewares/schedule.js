@@ -27,7 +27,9 @@ const checkSchedulePermissions = catchAsync(async (req, res, next) => {
 // this middleware checks if user is a participant of a current schedule
 // and if he has permissions to permorf some actions with visits
 const checkVisitsPermissions = catchAsync(async (req, res, next) => {
-  const schedule = await Schedule.findById(req.params.scheduleId);
+  const schedule = await Schedule.findById(
+    req.params.scheduleId || req.params.id
+  );
 
   if (!schedule) {
     return next(createError(httpCodes.NOT_FOUND, 'Schedule not found'));
@@ -52,7 +54,7 @@ const checkVisitsPermissions = catchAsync(async (req, res, next) => {
     return next(
       createError(
         httpCodes.FORBIDDEN,
-        'You are not allowed to permorm this action inside this schedule'
+        'You are not allowed to perform this action inside this schedule'
       )
     );
   }
