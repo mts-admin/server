@@ -1,11 +1,24 @@
-const R = require('ramda');
 const createError = require('http-errors');
 
 const User = require('../models/user');
+const Visit = require('../models/visit');
 const Schedule = require('../models/schedule');
 const catchAsync = require('../utils/catch-async');
 const httpCodes = require('../constants/http-codes');
 const APIFeatures = require('../utils/api-features');
+
+// checking if schedule exists was implemented in middleware
+const getSchedule = catchAsync(async (req, res, next) => {
+  const schedule = await Schedule.findById(req.params.id).populate(
+    'owner participants.user',
+    'name avatar'
+  );
+
+  res.status(httpCodes.SUCCESS).json({
+    status: 'success',
+    data: schedule,
+  });
+});
 
 const getMySchedules = catchAsync(async (req, res, next) => {
   const query = new APIFeatures(
@@ -52,10 +65,8 @@ const getSharedSchedules = catchAsync(async (req, res, next) => {
 });
 
 const createSchedule = catchAsync(async (req, res, next) => {
-  const body = R.pick(['name', 'description'], req.body);
-
   const schedule = await Schedule.create({
-    ...body,
+    ...req.body,
     owner: req.user._id,
   });
 
@@ -67,9 +78,7 @@ const createSchedule = catchAsync(async (req, res, next) => {
 
 // checking if schedule exists was implemented in middleware
 const updateSchedule = catchAsync(async (req, res, next) => {
-  const body = R.pick(['name', 'description'], req.body);
-
-  const schedule = await Schedule.findByIdAndUpdate(req.params.id, body, {
+  const schedule = await Schedule.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
   });
 
@@ -79,9 +88,9 @@ const updateSchedule = catchAsync(async (req, res, next) => {
   });
 });
 
-// TODO: remove all visits
 // checking if schedule exists was implemented in middleware
 const deleteSchedule = catchAsync(async (req, res, next) => {
+  await Visit.deleteMany({ scheduleId: req.params.id });
   await Schedule.findByIdAndDelete(req.params.id);
 
   res.status(httpCodes.SUCCESS_DELETED).json({
@@ -119,7 +128,7 @@ const addParticipant = catchAsync(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('participants.user', 'name avatar');
 
   if (!schedule) {
     return next(
@@ -148,7 +157,7 @@ const updateParticipant = catchAsync(async (req, res, next) => {
       'participants.$.permissions': permissions,
     },
     { new: true }
-  );
+  ).populate('participants.user', 'name avatar');
 
   if (!schedule) {
     return next(
@@ -179,7 +188,7 @@ const removeParticipant = catchAsync(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('participants.user', 'name avatar');
 
   if (!schedule) {
     return next(
@@ -228,6 +237,7 @@ const leaveSchedule = catchAsync(async (req, res, next) => {
 });
 
 module.exports = {
+  getSchedule,
   getMySchedules,
   getSharedSchedules,
   createSchedule,

@@ -19,6 +19,7 @@
     "bcryptjs": "^2.4.3",
     "celebrate": "^14.0.0",
     "cookie-parser": "^1.4.5",
+    "date-fns": "^2.22.1",
     "dotenv": "^8.2.0",
     "escape-string-regexp": "^1.0.5",
     "express": "^4.17.1",
@@ -37,6 +38,7 @@
     "ramda": "^0.27.1",
     "sharp": "^0.28.1",
     "slugify": "^1.5.0",
+    "uuid": "^8.3.2",
     "validator": "^13.5.2",
     "xss-clean": "^0.1.1"
   },
