@@ -1,35 +1,35 @@
 const createError = require('http-errors');
 const { isCelebrateError } = require('celebrate');
 
-const httpCodes = require('../constants/http-codes');
+const HTTP_CODE = require('../constants/http-codes');
 const config = require('../../config');
 
 const handleJWTError = () =>
-  createError(httpCodes.UNAUTHORIZED, 'Invalid token. Please log in again!');
+  createError(HTTP_CODE.UNAUTHORIZED, 'Invalid token. Please log in again!');
 
 const handleJWTExpiredError = () =>
   createError(
-    httpCodes.UNAUTHORIZED,
+    HTTP_CODE.UNAUTHORIZED,
     'Your token has expired! Please log in again.'
   );
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
-  return createError(httpCodes.BAD_REQUEST, message);
+  return createError(HTTP_CODE.BAD_REQUEST, message);
 };
 
 const handleDuplicateFieldsDB = (err) => {
   const value = Object.values(err.keyValue).join(', ');
   const message = `Duplicate field value: ${value}. Please use another value!`;
 
-  return createError(httpCodes.BAD_REQUEST, message);
+  return createError(HTTP_CODE.BAD_REQUEST, message);
 };
 
 const handleValidationErrorDB = (err) => {
   const errors = Object.values(err.errors).map((el) => el.message);
   const message = `Invalid input data. ${errors.join('. ')}`;
 
-  return createError(httpCodes.BAD_REQUEST, message);
+  return createError(HTTP_CODE.BAD_REQUEST, message);
 };
 
 const handleJoiError = (err) => {
@@ -41,7 +41,7 @@ const handleJoiError = (err) => {
   });
   const message = `Validation error: ${fullMessage.join('; ')}`;
 
-  return createError(httpCodes.BAD_REQUEST, message);
+  return createError(HTTP_CODE.BAD_REQUEST, message);
 };
 
 const sendErrorDev = (err, req, res) =>
@@ -61,14 +61,14 @@ const sendErrorProd = (err, req, res) => {
   }
 
   // Programming or other unknown error
-  return res.status(httpCodes.SERVER_ERROR).json({
+  return res.status(HTTP_CODE.SERVER_ERROR).json({
     status: 'error',
     message: 'Something went wrong!',
   });
 };
 
 module.exports = (err, req, res, next) => {
-  err.statusCode = err.statusCode || httpCodes.SERVER_ERROR;
+  err.statusCode = err.statusCode || HTTP_CODE.SERVER_ERROR;
   err.status = 'error';
 
   if (config.nodeEnv === 'development') {

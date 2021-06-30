@@ -3,7 +3,7 @@ const createError = require('http-errors');
 const Finance = require('../models/finance');
 const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
-const httpCodes = require('../constants/http-codes');
+const HTTP_CODE = require('../constants/http-codes');
 const { FINANCE_TYPE } = require('../constants/finance');
 const { getDateMatch } = require('../utils/general');
 
@@ -22,7 +22,7 @@ const getFinanceList = catchAsync(async (req, res, next) => {
   const finances = await query.query;
   const totalCount = await query.query.countDocuments();
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     count: totalCount,
     data: finances,
@@ -36,10 +36,10 @@ const getFinanceItem = catchAsync(async (req, res, next) => {
   });
 
   if (!finance) {
-    return next(createError(httpCodes.NOT_FOUND, 'Item not found'));
+    return next(createError(HTTP_CODE.NOT_FOUND, 'Item not found'));
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: finance,
   });
@@ -51,7 +51,7 @@ const createFinanceItem = catchAsync(async (req, res, next) => {
     userId: req.user._id,
   });
 
-  res.status(httpCodes.SUCCESS_CREATED).json({
+  res.status(HTTP_CODE.SUCCESS_CREATED).json({
     status: 'success',
     data: finance,
   });
@@ -70,10 +70,10 @@ const updateFinanceItem = catchAsync(async (req, res, next) => {
   );
 
   if (!finance) {
-    return next(createError(httpCodes.NOT_FOUND, 'Item not found'));
+    return next(createError(HTTP_CODE.NOT_FOUND, 'Item not found'));
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: finance,
   });
@@ -86,10 +86,10 @@ const deleteFinanceItem = catchAsync(async (req, res, next) => {
   });
 
   if (!finance) {
-    return next(createError(httpCodes.NOT_FOUND, 'Item not found'));
+    return next(createError(HTTP_CODE.NOT_FOUND, 'Item not found'));
   }
 
-  res.status(httpCodes.SUCCESS_DELETED).json({
+  res.status(HTTP_CODE.SUCCESS_DELETED).json({
     status: 'success',
     data: null,
   });
@@ -138,7 +138,7 @@ const getFinanceStatisticByDate = catchAsync(async (req, res, next) => {
     },
   ]);
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: stats,
   });
@@ -169,7 +169,7 @@ const getFinanceFullStatistic = catchAsync(async (req, res, next) => {
     {}
   );
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: result,
   });

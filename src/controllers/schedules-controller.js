@@ -4,7 +4,7 @@ const User = require('../models/user');
 const Visit = require('../models/visit');
 const Schedule = require('../models/schedule');
 const catchAsync = require('../utils/catch-async');
-const httpCodes = require('../constants/http-codes');
+const HTTP_CODE = require('../constants/http-codes');
 const APIFeatures = require('../utils/api-features');
 
 // checking if schedule exists was implemented in middleware
@@ -14,7 +14,7 @@ const getSchedule = catchAsync(async (req, res, next) => {
     'name avatar'
   );
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: schedule,
   });
@@ -35,7 +35,7 @@ const getMySchedules = catchAsync(async (req, res, next) => {
   const schedules = await query.query;
   const totalCount = await query.query.countDocuments();
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     count: totalCount,
     data: schedules,
@@ -57,7 +57,7 @@ const getSharedSchedules = catchAsync(async (req, res, next) => {
   const schedules = await query.query;
   const totalCount = await query.query.countDocuments();
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     count: totalCount,
     data: schedules,
@@ -70,7 +70,7 @@ const createSchedule = catchAsync(async (req, res, next) => {
     owner: req.user._id,
   });
 
-  res.status(httpCodes.SUCCESS_CREATED).json({
+  res.status(HTTP_CODE.SUCCESS_CREATED).json({
     status: 'success',
     data: schedule,
   });
@@ -82,7 +82,7 @@ const updateSchedule = catchAsync(async (req, res, next) => {
     new: true,
   });
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: schedule,
   });
@@ -93,7 +93,7 @@ const deleteSchedule = catchAsync(async (req, res, next) => {
   await Visit.deleteMany({ scheduleId: req.params.id });
   await Schedule.findByIdAndDelete(req.params.id);
 
-  res.status(httpCodes.SUCCESS_DELETED).json({
+  res.status(HTTP_CODE.SUCCESS_DELETED).json({
     status: 'success',
     data: null,
   });
@@ -105,12 +105,12 @@ const addParticipant = catchAsync(async (req, res, next) => {
   const participant = await User.findOne({ email: participantEmail });
 
   if (!participant) {
-    return next(createError(httpCodes.NOT_FOUND, 'User not found!'));
+    return next(createError(HTTP_CODE.NOT_FOUND, 'User not found!'));
   }
 
   if (participant._id.equals(req.user._id)) {
     return next(
-      createError(httpCodes.BAD_REQUEST, 'You cannot invite yourself!')
+      createError(HTTP_CODE.BAD_REQUEST, 'You cannot invite yourself!')
     );
   }
 
@@ -133,13 +133,13 @@ const addParticipant = catchAsync(async (req, res, next) => {
   if (!schedule) {
     return next(
       createError(
-        httpCodes.BAD_REQUEST,
+        HTTP_CODE.BAD_REQUEST,
         'This schedule does not exist or user is already a participant!'
       )
     );
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: schedule,
   });
@@ -162,13 +162,13 @@ const updateParticipant = catchAsync(async (req, res, next) => {
   if (!schedule) {
     return next(
       createError(
-        httpCodes.BAD_REQUEST,
+        HTTP_CODE.BAD_REQUEST,
         'This schedule does not exist or user is not a participant!'
       )
     );
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: schedule,
   });
@@ -193,13 +193,13 @@ const removeParticipant = catchAsync(async (req, res, next) => {
   if (!schedule) {
     return next(
       createError(
-        httpCodes.NOT_FOUND,
+        HTTP_CODE.NOT_FOUND,
         'This schedule does not exist or user is not a participant!'
       )
     );
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: schedule,
   });
@@ -224,13 +224,13 @@ const leaveSchedule = catchAsync(async (req, res, next) => {
   if (!schedule) {
     return next(
       createError(
-        httpCodes.NOT_FOUND,
+        HTTP_CODE.NOT_FOUND,
         'This schedule does not exist or you are not a participant!'
       )
     );
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: null,
   });
