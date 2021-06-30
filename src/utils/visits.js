@@ -1,12 +1,5 @@
 const R = require('ramda');
-const {
-  formatISO,
-  startOfDay,
-  getMinutes,
-  getHours,
-  getDay,
-  add,
-} = require('date-fns');
+const moment = require('./moment');
 const { VISIT_RECURRING } = require('../constants/visits');
 const { getDateInterval } = require('./general');
 
@@ -29,17 +22,17 @@ const generateRecurringVisitsData = ({
 
   const data = dateInterval
     .map((date) => {
-      if (!daysOfWeek.includes(getDay(date))) {
+      if (!daysOfWeek.includes(moment(date).day())) {
         return null;
       }
 
-      const startDate = add(startOfDay(date), {
-        hours: getHours(startTime),
-        minutes: getMinutes(startTime),
+      const startDate = moment(date).set({
+        hour: moment(startTime).hours(),
+        minute: moment(startTime).minutes(),
       });
-      const endDate = add(startOfDay(date), {
-        hours: getHours(endTime),
-        minutes: getMinutes(endTime),
+      const endDate = moment(date).set({
+        hour: moment(endTime).hours(),
+        minute: moment(endTime).minutes(),
       });
 
       return R.filter(Boolean, {
@@ -50,8 +43,8 @@ const generateRecurringVisitsData = ({
         scheduleId,
         recurring,
         createdBy,
-        startTime: formatISO(startDate),
-        endTime: formatISO(endDate),
+        startTime: startDate,
+        endTime: endDate,
         ...(recurring === VISIT_RECURRING.WEEKLY && { daysOfWeek }),
       });
     })

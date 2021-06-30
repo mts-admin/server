@@ -2,7 +2,7 @@ const createError = require('http-errors');
 
 const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
-const httpCodes = require('../constants/http-codes');
+const HTTP_CODE = require('../constants/http-codes');
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
@@ -14,7 +14,7 @@ exports.getAll = (Model) =>
 
     const doc = await features.query;
 
-    res.status(httpCodes.SUCCESS).json({
+    res.status(HTTP_CODE.SUCCESS).json({
       status: 'success',
       data: doc,
     });
@@ -28,11 +28,11 @@ exports.getOne = (Model, popOptions) =>
 
     if (!doc) {
       return next(
-        createError(httpCodes.NOT_FOUND, 'No document found with that ID')
+        createError(HTTP_CODE.NOT_FOUND, 'No document found with that ID')
       );
     }
 
-    res.status(httpCodes.SUCCESS).json({
+    res.status(HTTP_CODE.SUCCESS).json({
       status: 'success',
       data: doc,
     });
@@ -42,7 +42,7 @@ exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.create(req.body);
 
-    res.status(httpCodes.SUCCESS_CREATED).json({
+    res.status(HTTP_CODE.SUCCESS_CREATED).json({
       status: 'success',
       data: doc,
     });
@@ -57,11 +57,11 @@ exports.updateOne = (Model) =>
 
     if (!doc) {
       return next(
-        createError(httpCodes.NOT_FOUND, 'No document found with that ID')
+        createError(HTTP_CODE.NOT_FOUND, 'No document found with that ID')
       );
     }
 
-    res.status(httpCodes.SUCCESS).json({
+    res.status(HTTP_CODE.SUCCESS).json({
       status: 'success',
       data: doc,
     });
@@ -73,11 +73,11 @@ exports.deleteOne = (Model) =>
 
     if (!doc) {
       return next(
-        createError(httpCodes.NOT_FOUND, 'No document found with that ID')
+        createError(HTTP_CODE.NOT_FOUND, 'No document found with that ID')
       );
     }
 
-    res.status(httpCodes.SUCCESS_DELETED).json({
+    res.status(HTTP_CODE.SUCCESS_DELETED).json({
       status: 'success',
       data: null,
     });

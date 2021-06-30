@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const escapeStringRegexp = require('escape-string-regexp');
-const { sub, differenceInDays, addDays, startOfDay } = require('date-fns');
 
+const moment = require('./moment');
 const { USER_ROLE } = require('../constants/users');
 
 const validateUserRole = (role) => {
@@ -38,12 +38,32 @@ const getSearchMatch = (searchPhrase, fields) => {
   return {};
 };
 
-const getDateInterval = (startDate, endDate) => {
-  const days = differenceInDays(endDate, startDate);
+const getDateMatch = (startDate, endDate, fieldName) =>
+  startDate &&
+  endDate && {
+    [fieldName]: {
+      $gte: startDate,
+      $lte: endDate,
+    },
+  };
 
-  return [...new Array(days + 1).keys()].map((i) =>
-    sub(startOfDay(addDays(startDate, i)), { hours: 5 })
+const getDateInterval = (startDate, endDate) => {
+  const rangeOfDates = moment.range(startDate, endDate);
+  const days = Array.from(rangeOfDates.by('day')).map((item) =>
+    item.startOf('day').format()
   );
+
+  return days;
+};
+
+const getDateDiff = (start, end) => {
+  const diff = moment(end).diff(moment(start));
+
+  const seconds = Math.abs(diff) / 1000;
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds - hours * 3600) / 60);
+
+  return `${String(hours).padStart(2, 0)}:${String(minutes).padStart(2, 0)}`;
 };
 
 module.exports = {
@@ -51,5 +71,7 @@ module.exports = {
   hashString,
   generateRandomTokens,
   getSearchMatch,
+  getDateMatch,
+  getDateDiff,
   getDateInterval,
 };

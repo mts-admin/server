@@ -11,7 +11,7 @@ const createError = require('http-errors');
 
 const router = require('./routes');
 const globalErrorHandler = require('./controllers/error-controller');
-const httpCodes = require('./constants/http-codes');
+const HTTP_CODE = require('./constants/http-codes');
 const config = require('../config');
 
 const app = express();
@@ -63,7 +63,7 @@ app.use('/api/v1', router);
 app.all('*', (req, res, next) => {
   next(
     createError(
-      httpCodes.NOT_FOUND,
+      HTTP_CODE.NOT_FOUND,
       `Can't find ${req.originalUrl} on this server`
     )
   );

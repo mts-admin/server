@@ -4,7 +4,7 @@ const createError = require('http-errors');
 
 const User = require('../models/user');
 const catchAsync = require('../utils/catch-async');
-const httpCodes = require('../constants/http-codes');
+const HTTP_CODE = require('../constants/http-codes');
 const config = require('../../config');
 
 const getMe = (req, res, next) => {
@@ -27,7 +27,7 @@ const protect = catchAsync(async (req, res, next) => {
   if (!token) {
     return next(
       createError(
-        httpCodes.UNAUTHORIZED,
+        HTTP_CODE.UNAUTHORIZED,
         'You are not logged in! Please log in to get access.'
       )
     );
@@ -41,7 +41,7 @@ const protect = catchAsync(async (req, res, next) => {
   if (!currentUser) {
     return next(
       createError(
-        httpCodes.UNAUTHORIZED,
+        HTTP_CODE.UNAUTHORIZED,
         'The user belonging to this token does no longer exist.'
       )
     );
@@ -51,7 +51,7 @@ const protect = catchAsync(async (req, res, next) => {
   if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
       createError(
-        httpCodes.UNAUTHORIZED,
+        HTTP_CODE.UNAUTHORIZED,
         'User recently changed password! Please log in again.'
       )
     );
@@ -67,7 +67,7 @@ const restrictTo =
     if (!roles.includes(req.user.role)) {
       return next(
         createError(
-          httpCodes.FORBIDDEN,
+          HTTP_CODE.FORBIDDEN,
           'You do not have permission to perform this action'
         )
       );

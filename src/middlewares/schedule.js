@@ -3,19 +3,19 @@ const createError = require('http-errors');
 
 const Schedule = require('../models/schedule');
 const catchAsync = require('../utils/catch-async');
-const httpCodes = require('../constants/http-codes');
+const HTTP_CODE = require('../constants/http-codes');
 
 const checkSchedulePermissions = catchAsync(async (req, res, next) => {
   const schedule = await Schedule.findById(req.params.id);
 
   if (!schedule) {
-    return next(createError(httpCodes.NOT_FOUND, 'Schedule not found'));
+    return next(createError(HTTP_CODE.NOT_FOUND, 'Schedule not found'));
   }
 
   if (!schedule.owner.equals(req.user._id)) {
     return next(
       createError(
-        httpCodes.FORBIDDEN,
+        HTTP_CODE.FORBIDDEN,
         'You are not allowed to perform this action'
       )
     );
@@ -32,7 +32,7 @@ const checkVisitsPermissions = catchAsync(async (req, res, next) => {
   );
 
   if (!schedule) {
-    return next(createError(httpCodes.NOT_FOUND, 'Schedule not found'));
+    return next(createError(HTTP_CODE.NOT_FOUND, 'Schedule not found'));
   }
 
   if (schedule.owner.equals(req.user._id)) return next();
@@ -44,7 +44,7 @@ const checkVisitsPermissions = catchAsync(async (req, res, next) => {
   if (!participant) {
     return next(
       createError(
-        httpCodes.FORBIDDEN,
+        HTTP_CODE.FORBIDDEN,
         'You are not a participant of this schedule'
       )
     );
@@ -53,7 +53,7 @@ const checkVisitsPermissions = catchAsync(async (req, res, next) => {
   if (!participant.permissions.includes(req.method)) {
     return next(
       createError(
-        httpCodes.FORBIDDEN,
+        HTTP_CODE.FORBIDDEN,
         'You are not allowed to perform this action inside this schedule'
       )
     );
