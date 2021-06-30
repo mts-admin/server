@@ -1,5 +1,7 @@
 const R = require('ramda');
-const { getSearchMatch } = require('./general');
+
+const moment = require('./moment');
+const { getSearchMatch, getDateMatch } = require('./general');
 
 const EXCLUDES_FIELDS = ['page', 'sort', 'skip', 'limit', 'fields', 'search'];
 
@@ -46,7 +48,7 @@ class APIFeatures {
 
   paginate() {
     const page = this.queryString.page * 1 || 1;
-    const limit = this.queryString.limit * 1 || 10;
+    const limit = this.queryString.limit * 1 || 9;
     const skip = (page - 1) * limit;
 
     this.query = this.query.skip(skip).limit(limit);
@@ -60,6 +62,17 @@ class APIFeatures {
 
       this.query = this.query.find(match);
     }
+
+    return this;
+  }
+
+  dateFilter(fieldName) {
+    const {
+      start = moment().startOf('month').format(),
+      end = moment().endOf('month').format(),
+    } = this.queryString;
+
+    this.query = this.query.find(getDateMatch(start, end, fieldName));
 
     return this;
   }

@@ -1,8 +1,8 @@
 const createError = require('http-errors');
-const { startOfMonth, endOfMonth, formatISO } = require('date-fns');
 const { v4: uuidv4 } = require('uuid');
 
 const Visit = require('../models/visit');
+const moment = require('../utils/moment');
 const catchAsync = require('../utils/catch-async');
 const httpCodes = require('../constants/http-codes');
 const { VISIT_RECURRING, VISIT_STATUS } = require('../constants/visits');
@@ -10,8 +10,10 @@ const { generateRecurringVisitsData } = require('../utils/visits');
 
 const getScheduleVisits = catchAsync(async (req, res, next) => {
   const { scheduleId } = req.params;
-  const { start = startOfMonth(new Date()), end = endOfMonth(new Date()) } =
-    req.query;
+  const {
+    start = moment().startOf('month').format(),
+    end = moment().endOf('month').format(),
+  } = req.query;
 
   const visits = await Visit.find({
     scheduleId,
@@ -33,8 +35,8 @@ const createOneOffVisit = catchAsync(async (req, res, next) => {
   const visit = await Visit.create({
     title,
     notes,
-    startTime: formatISO(startTime),
-    endTime: formatISO(endTime),
+    startTime: moment(startTime).format(),
+    endTime: moment(endTime).format(),
     scheduleId: req.params.scheduleId,
     recurring: VISIT_RECURRING.ONE_OFF,
     status: VISIT_STATUS.ACTIVE,

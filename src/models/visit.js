@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
-const { differenceInMilliseconds } = require('date-fns');
 
 const { VISIT_RECURRING, VISIT_STATUS } = require('../constants/visits');
+const { getDateDiff } = require('../utils/general');
 
 const visitSchema = new Schema(
   {
@@ -59,13 +59,9 @@ const visitSchema = new Schema(
 );
 
 visitSchema.virtual('duration').get(function () {
-  const diff = differenceInMilliseconds(this.startTime, this.endTime);
+  const diff = getDateDiff(this.startTime, this.endTime);
 
-  const seconds = Math.abs(diff) / 1000;
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds - hours * 3600) / 60);
-
-  return `${String(hours).padStart(2, 0)}:${minutes}`;
+  return diff;
 });
 
 const Visit = model('Visit', visitSchema);
