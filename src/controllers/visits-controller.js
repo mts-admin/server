@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const Visit = require('../models/visit');
 const moment = require('../utils/moment');
+const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const { VISIT_RECURRING, VISIT_STATUS } = require('../constants/visits');
@@ -10,18 +11,12 @@ const { generateRecurringVisitsData } = require('../utils/visits');
 
 const getScheduleVisits = catchAsync(async (req, res, next) => {
   const { scheduleId } = req.params;
-  const {
-    start = moment().startOf('month').format(),
-    end = moment().endOf('month').format(),
-  } = req.query;
 
-  const visits = await Visit.find({
-    scheduleId,
-    startTime: {
-      $gte: start,
-      $lte: end,
-    },
-  });
+  const query = new APIFeatures(Visit.find({ scheduleId }), req.query)
+    .sort('startTime')
+    .dateFilter('startTime');
+
+  const visits = await query.query;
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',

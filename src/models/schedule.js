@@ -38,6 +38,10 @@ const scheduleSchema = new Schema(
         },
       },
     ],
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
   },
   {
     toJSON: { virtuals: true },
