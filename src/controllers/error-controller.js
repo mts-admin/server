@@ -2,7 +2,6 @@ const createError = require('http-errors');
 const { isCelebrateError } = require('celebrate');
 
 const HTTP_CODE = require('../constants/http-codes');
-const config = require('../../config');
 
 const handleJWTError = () =>
   createError(HTTP_CODE.UNAUTHORIZED, 'Invalid token. Please log in again!');
@@ -44,14 +43,7 @@ const handleJoiError = (err) => {
   return createError(HTTP_CODE.BAD_REQUEST, message);
 };
 
-const sendErrorDev = (err, req, res) =>
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-    error: err,
-  });
-
-const sendErrorProd = (err, req, res) => {
+const sendError = (err, req, res) => {
   // Operational, trusted error
   if (createError.isHttpError(err)) {
     return res.status(err.statusCode).json({
@@ -68,22 +60,19 @@ const sendErrorProd = (err, req, res) => {
 };
 
 module.exports = (err, req, res, next) => {
+  console.error(err);
+
   err.statusCode = err.statusCode || HTTP_CODE.SERVER_ERROR;
   err.status = 'error';
 
-  if (config.nodeEnv === 'development') {
-    sendErrorDev(err, req, res);
-  } else if (config.nodeEnv === 'production') {
-    let error = Object.create(err);
+  let error = Object.create(err);
 
-    if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-    if (error.name === 'CastError') error = handleCastErrorDB(error);
-    if (error.name === 'ValidationError')
-      error = handleValidationErrorDB(error);
-    if (error.name === 'JsonWebTokenError') error = handleJWTError();
-    if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();
-    if (isCelebrateError(error)) error = handleJoiError(error);
+  if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+  if (error.name === 'CastError') error = handleCastErrorDB(error);
+  if (error.name === 'ValidationError') error = handleValidationErrorDB(error);
+  if (error.name === 'JsonWebTokenError') error = handleJWTError();
+  if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();
+  if (isCelebrateError(error)) error = handleJoiError(error);
 
-    sendErrorProd(error, req, res);
-  }
+  sendError(error, req, res);
 };

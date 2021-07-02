@@ -14,7 +14,7 @@ const getFinanceList = catchAsync(async (req, res, next) => {
     }),
     req.query
   )
-    .sort()
+    .sort('date')
     .search('title', 'description')
     .dateFilter('date')
     .paginate();
