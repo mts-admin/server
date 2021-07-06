@@ -30,7 +30,7 @@ if (config.nodeEnv === 'development') {
   app.use(morgan('dev'));
 }
 
-// Limit requests from same API
+// Limit requests from same IP
 const limiter = rateLimit({
   max: 1000,
   windowMs: 60 * 1000,

@@ -29,7 +29,7 @@ const userSchema = new Schema({
   },
   avatar: {
     type: String,
-    default: 'default.jpg',
+    default: 'default-avatar.png',
   },
   invitedBy: {
     type: Schema.ObjectId,
@@ -37,13 +37,11 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    // required: [true, 'Please provide a password'],
     minlength: 8,
     select: false,
   },
   passwordConfirm: {
     type: String,
-    // required: [true, 'Please confirm your password'],
     validate: {
       // This only works on CREATE and SAVE!!!
       validator: function (el) {
