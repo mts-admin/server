@@ -90,8 +90,10 @@ const updateSchedule = catchAsync(async (req, res, next) => {
 
 // checking if schedule exists was implemented in middleware
 const deleteSchedule = catchAsync(async (req, res, next) => {
-  await Visit.deleteMany({ scheduleId: req.params.id });
-  await Schedule.findByIdAndDelete(req.params.id);
+  await Promise.all([
+    Visit.deleteMany({ scheduleId: req.params.id }),
+    Schedule.findByIdAndDelete(req.params.id),
+  ]);
 
   res.status(HTTP_CODE.SUCCESS_DELETED).json({
     status: 'success',

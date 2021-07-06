@@ -125,7 +125,10 @@ const login = catchAsync(async (req, res, next) => {
     );
   }
 
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({
+    email,
+    status: USER_STATUS.ACTIVE,
+  }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(
