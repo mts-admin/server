@@ -140,7 +140,8 @@ const login = catchAsync(async (req, res, next) => {
 });
 
 const logout = (req, res) => {
-  res.clearCookie('jwt');
+  // res.clearCookie('jwt');
+  req.logout();
 
   res.status(HTTP_CODE.SUCCESS).json({ status: 'success' });
 };
@@ -198,22 +199,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   user.techData.passwordResetToken = undefined;
   user.techData.passwordResetExpires = undefined;
-  await user.save();
-
-  createSendToken(user, HTTP_CODE.SUCCESS, res);
-});
-
-const updatePassword = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select('+password');
-
-  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
-    return next(
-      createError(HTTP_CODE.UNAUTHORIZED, 'Your current password is wrong.')
-    );
-  }
-
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
+  user.techData.passwordChangedAt = Date.now();
   await user.save();
 
   createSendToken(user, HTTP_CODE.SUCCESS, res);
@@ -225,7 +211,6 @@ module.exports = {
   inviteUser,
   resetPassword,
   forgotPassword,
-  updatePassword,
   cancelInvitation,
   getInvitationData,
   signUpByInvitation,

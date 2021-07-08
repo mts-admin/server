@@ -6,11 +6,7 @@ const User = require('../models/user');
 const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const config = require('../../config');
-
-const getMe = (req, res, next) => {
-  req.params.id = req.user.id;
-  next();
-};
+const { USER_STATUS } = require('../constants/users');
 
 const protect = catchAsync(async (req, res, next) => {
   // Getting token and check of it's there
@@ -20,9 +16,10 @@ const protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
   }
+  // else if (req.cookies.jwt) {
+  //   token = req.cookies.jwt;
+  // }
 
   if (!token) {
     return next(
@@ -37,12 +34,16 @@ const protect = catchAsync(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, config.jwtSecret);
 
   // Check if user still exists
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await User.findOne({
+    _id: decoded.id,
+    status: USER_STATUS.ACTIVE,
+  });
+
   if (!currentUser) {
     return next(
       createError(
         HTTP_CODE.UNAUTHORIZED,
-        'The user belonging to this token does no longer exist.'
+        'This user has been deleted or deactivated.'
       )
     );
   }
@@ -76,4 +77,4 @@ const restrictTo =
     next();
   };
 
-module.exports = { getMe, protect, restrictTo };
+module.exports = { protect, restrictTo };
