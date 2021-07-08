@@ -21,12 +21,6 @@ const inviteUserSchema = Joi.object({
   email: Joi.string().email().required(),
 });
 
-const updateMyPasswordSchema = Joi.object({
-  passwordCurrent: Joi.string().min(8).required(),
-  password: Joi.string().min(8).required(),
-  passwordConfirm: Joi.string().min(8).required(),
-});
-
 const loginValidator = celebrate({ [Segments.BODY]: loginSchema });
 
 const passwordsValidator = celebrate({
@@ -41,14 +35,9 @@ const inviteUserValidator = celebrate({
   [Segments.BODY]: inviteUserSchema,
 });
 
-const updateMyPasswordValidator = celebrate({
-  [Segments.BODY]: updateMyPasswordSchema,
-});
-
 module.exports = {
   loginValidator,
   passwordsValidator,
   inviteUserValidator,
   forgotPasswordValidator,
-  updateMyPasswordValidator,
 };

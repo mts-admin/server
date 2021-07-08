@@ -50,7 +50,7 @@ const getUserBonuses = catchAsync(async (req, res, next) => {
 
 const getBonus = catchAsync(async (req, res, next) => {
   const bonus = await Bonus.findById(req.params.id, (err, item) => {
-    if (!item.viewed) {
+    if (!item.viewed && req.user._id.equals(item.userId)) {
       item.viewed = true;
       item.save();
     }

@@ -19,7 +19,7 @@ const handleCastErrorDB = (err) => {
 
 const handleDuplicateFieldsDB = (err) => {
   const value = Object.values(err.keyValue).join(', ');
-  const message = `Duplicate field value: ${value}. Please use another value!`;
+  const message = `This value must be unique: ${value}. Please use another one!`;
 
   return createError(HTTP_CODE.BAD_REQUEST, message);
 };

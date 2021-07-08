@@ -6,7 +6,6 @@ const {
   inviteUser,
   resetPassword,
   forgotPassword,
-  updatePassword,
   cancelInvitation,
   getInvitationData,
   signUpByInvitation,
@@ -16,7 +15,6 @@ const {
   passwordsValidator,
   inviteUserValidator,
   forgotPasswordValidator,
-  updateMyPasswordValidator,
 } = require('./validators/auth-validators');
 const { protect, restrictTo } = require('../middlewares/auth');
 const { USER_ROLE } = require('../constants/users');
@@ -46,7 +44,5 @@ router.delete(
   restrictTo(USER_ROLE.ADMIN, USER_ROLE.OWNER),
   cancelInvitation
 );
-
-router.patch('/updateMyPassword', updateMyPasswordValidator, updatePassword);
 
 module.exports = router;
