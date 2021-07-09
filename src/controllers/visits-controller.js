@@ -8,6 +8,7 @@ const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const { VISIT_RECURRING, VISIT_STATUS } = require('../constants/visits');
 const { generateRecurringVisitsData } = require('../utils/visits');
+const { getOne, updateOne, deleteOne } = require('./handler-factory');
 
 const getScheduleVisits = catchAsync(async (req, res, next) => {
   const { scheduleId } = req.params;
@@ -79,48 +80,30 @@ const createRecurringVisits = catchAsync(async (req, res, next) => {
   });
 });
 
-const getVisit = catchAsync(async (req, res, next) => {
-  const visit = await Visit.findById(req.params.visitId).populate(
-    'createdBy',
-    'name avatar -_id'
-  );
-
-  if (!visit) {
-    return next(createError(HTTP_CODE.NOT_FOUND, 'Visit not found'));
-  }
-
-  res.status(HTTP_CODE.SUCCESS).json({
-    status: 'success',
-    data: visit,
-  });
+const getVisit = getOne(Visit, {
+  match: {
+    _id: ['params', 'visitId'],
+  },
+  populate: {
+    path: 'createdBy',
+    select: 'name avatar -_id',
+  },
 });
 
-const updateVisit = catchAsync(async (req, res, next) => {
-  const visit = await Visit.findByIdAndUpdate(req.params.visitId, req.body, {
-    new: true,
-  }).populate('createdBy', 'name avatar -_id');
-
-  if (!visit) {
-    return next(createError(HTTP_CODE.NOT_FOUND, 'Visit not found'));
-  }
-
-  res.status(HTTP_CODE.SUCCESS).json({
-    status: 'success',
-    data: visit,
-  });
+const updateVisit = updateOne(Visit, {
+  match: {
+    _id: ['params', 'visitId'],
+  },
+  populate: {
+    path: 'createdBy',
+    select: 'name avatar -_id',
+  },
 });
 
-const deleteVisit = catchAsync(async (req, res, next) => {
-  const visit = await Visit.findByIdAndDelete(req.params.visitId);
-
-  if (!visit) {
-    return next(createError(HTTP_CODE.NOT_FOUND, 'Visit not found'));
-  }
-
-  res.status(HTTP_CODE.SUCCESS_DELETED).json({
-    status: 'success',
-    data: null,
-  });
+const deleteVisit = deleteOne(Visit, {
+  match: {
+    _id: ['params', 'visitId'],
+  },
 });
 
 const updateVisitsGroup = catchAsync(async (req, res, next) => {

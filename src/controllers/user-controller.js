@@ -6,6 +6,7 @@ const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const { USER_STATUS } = require('../constants/users');
 const { createSendToken } = require('../utils/auth');
+const { getOne, updateOne } = require('./handler-factory');
 
 const getMe = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user._id).populate('newBonusesCount');
@@ -84,34 +85,18 @@ const getUsersList = catchAsync(async (req, res, next) => {
   });
 });
 
-const getUser = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
-
-  if (!user) {
-    return next(createError(HTTP_CODE.NOT_FOUND, 'User not found!'));
-  }
-
-  res.status(HTTP_CODE.SUCCESS).json({
-    status: 'success',
-    data: user,
-  });
+const getUser = getOne(User, {
+  match: {
+    _id: ['params', 'id'],
+  },
 });
 
 // only for status (active, deactivated) and role (user, admin)
 // validation is implemented via Joi
-const updateUser = catchAsync(async (req, res, next) => {
-  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-
-  if (!user) {
-    return next(createError(HTTP_CODE.NOT_FOUND, 'User not found!'));
-  }
-
-  res.status(HTTP_CODE.SUCCESS).json({
-    status: 'success',
-    data: user,
-  });
+const updateUser = updateOne(User, {
+  match: {
+    _id: ['params', 'id'],
+  },
 });
 
 module.exports = {

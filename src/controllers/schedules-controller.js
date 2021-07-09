@@ -6,18 +6,16 @@ const Schedule = require('../models/schedule');
 const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const APIFeatures = require('../utils/api-features');
+const { getOne, createOne, updateOne } = require('./handler-factory');
 
-// checking if schedule exists was implemented in middleware
-const getSchedule = catchAsync(async (req, res, next) => {
-  const schedule = await Schedule.findById(req.params.id).populate(
-    'owner participants.user',
-    'name avatar'
-  );
-
-  res.status(HTTP_CODE.SUCCESS).json({
-    status: 'success',
-    data: schedule,
-  });
+const getSchedule = getOne(Schedule, {
+  match: {
+    _id: ['params', 'id'],
+  },
+  populate: {
+    path: 'owner participants.user',
+    select: 'name avatar',
+  },
 });
 
 const getMySchedules = catchAsync(async (req, res, next) => {
@@ -64,28 +62,16 @@ const getSharedSchedules = catchAsync(async (req, res, next) => {
   });
 });
 
-const createSchedule = catchAsync(async (req, res, next) => {
-  const schedule = await Schedule.create({
-    ...req.body,
-    owner: req.user._id,
-  });
-
-  res.status(HTTP_CODE.SUCCESS_CREATED).json({
-    status: 'success',
-    data: schedule,
-  });
+const createSchedule = createOne(Schedule, {
+  body: {
+    owner: ['user', 'id'],
+  },
 });
 
-// checking if schedule exists was implemented in middleware
-const updateSchedule = catchAsync(async (req, res, next) => {
-  const schedule = await Schedule.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-
-  res.status(HTTP_CODE.SUCCESS).json({
-    status: 'success',
-    data: schedule,
-  });
+const updateSchedule = updateOne(Schedule, {
+  match: {
+    _id: ['params', 'id'],
+  },
 });
 
 // checking if schedule exists was implemented in middleware

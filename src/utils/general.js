@@ -1,3 +1,4 @@
+const R = require('ramda');
 const crypto = require('crypto');
 const escapeStringRegexp = require('escape-string-regexp');
 
@@ -66,6 +67,13 @@ const getDateDiff = (start, end) => {
   return `${String(hours).padStart(2, 0)}:${String(minutes).padStart(2, 0)}`;
 };
 
+const capitalizeFirstLetter = (string) =>
+  string.charAt(0).toUpperCase() + string.slice(1);
+
+// { match: { _id: ['params', 'id'] } } =>
+// { match: { _id: req.params.id } }
+const mapObjectByReq = (req, obj) => R.map((path) => R.path(path, req), obj);
+
 module.exports = {
   validateUserRole,
   hashString,
@@ -74,4 +82,6 @@ module.exports = {
   getDateMatch,
   getDateDiff,
   getDateInterval,
+  capitalizeFirstLetter,
+  mapObjectByReq,
 };
