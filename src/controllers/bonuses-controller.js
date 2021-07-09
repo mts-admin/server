@@ -5,6 +5,7 @@ const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const User = require('../models/user');
+const { updateOne, deleteOne } = require('./handler-factory');
 
 const getMyBonuses = catchAsync(async (req, res, next) => {
   const query = new APIFeatures(
@@ -84,32 +85,16 @@ const createBonus = catchAsync(async (req, res, next) => {
   });
 });
 
-const updateBonus = catchAsync(async (req, res, next) => {
-  const bonus = await Bonus.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-
-  if (!bonus) {
-    return next(createError(HTTP_CODE.NOT_FOUND, 'Bonus not found!'));
-  }
-
-  res.status(HTTP_CODE.SUCCESS).json({
-    status: 'success',
-    data: bonus,
-  });
+const updateBonus = updateOne(Bonus, {
+  match: {
+    _id: ['params', 'id'],
+  },
 });
 
-const deleteBonus = catchAsync(async (req, res, next) => {
-  const bonus = await Bonus.findByIdAndDelete(req.params.id);
-
-  if (!bonus) {
-    return next(createError(HTTP_CODE.NOT_FOUND, 'Bonus not found!'));
-  }
-
-  res.status(HTTP_CODE.SUCCESS_DELETED).json({
-    status: 'success',
-    data: null,
-  });
+const deleteBonus = deleteOne(Bonus, {
+  match: {
+    _id: ['params', 'id'],
+  },
 });
 
 module.exports = {

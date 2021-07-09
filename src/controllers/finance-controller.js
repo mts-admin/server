@@ -1,9 +1,13 @@
-const createError = require('http-errors');
-
 const Finance = require('../models/finance');
 const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
+const {
+  getOne,
+  createOne,
+  updateOne,
+  deleteOne,
+} = require('./handler-factory');
 const { FINANCE_TYPE } = require('../constants/finance');
 const { getDateMatch } = require('../utils/general');
 
@@ -29,70 +33,31 @@ const getFinanceList = catchAsync(async (req, res, next) => {
   });
 });
 
-const getFinanceItem = catchAsync(async (req, res, next) => {
-  const finance = await Finance.findOne({
-    _id: req.params.id,
-    userId: req.user._id,
-  });
-
-  if (!finance) {
-    return next(createError(HTTP_CODE.NOT_FOUND, 'Item not found'));
-  }
-
-  res.status(HTTP_CODE.SUCCESS).json({
-    status: 'success',
-    data: finance,
-  });
+const getFinanceItem = getOne(Finance, {
+  match: {
+    _id: ['params', 'id'],
+    userId: ['user', 'id'],
+  },
 });
 
-const createFinanceItem = catchAsync(async (req, res, next) => {
-  const finance = await Finance.create({
-    ...req.body,
-    userId: req.user._id,
-  });
-
-  res.status(HTTP_CODE.SUCCESS_CREATED).json({
-    status: 'success',
-    data: finance,
-  });
+const createFinanceItem = createOne(Finance, {
+  body: {
+    userId: ['user', 'id'],
+  },
 });
 
-const updateFinanceItem = catchAsync(async (req, res, next) => {
-  const finance = await Finance.findOneAndUpdate(
-    {
-      _id: req.params.id,
-      userId: req.user._id,
-    },
-    req.body,
-    {
-      new: true,
-    }
-  );
-
-  if (!finance) {
-    return next(createError(HTTP_CODE.NOT_FOUND, 'Item not found'));
-  }
-
-  res.status(HTTP_CODE.SUCCESS).json({
-    status: 'success',
-    data: finance,
-  });
+const updateFinanceItem = updateOne(Finance, {
+  match: {
+    _id: ['params', 'id'],
+    userId: ['user', 'id'],
+  },
 });
 
-const deleteFinanceItem = catchAsync(async (req, res, next) => {
-  const finance = await Finance.findOneAndDelete({
-    _id: req.params.id,
-    userId: req.user._id,
-  });
-
-  if (!finance) {
-    return next(createError(HTTP_CODE.NOT_FOUND, 'Item not found'));
-  }
-
-  res.status(HTTP_CODE.SUCCESS_DELETED).json({
-    status: 'success',
-    data: null,
-  });
+const deleteFinanceItem = deleteOne(Finance, {
+  match: {
+    _id: ['params', 'id'],
+    userId: ['user', 'id'],
+  },
 });
 
 const getFinanceStatisticByDate = catchAsync(async (req, res, next) => {
