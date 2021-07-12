@@ -9,7 +9,7 @@ const {
   deleteOne,
 } = require('./handler-factory');
 const { FINANCE_TYPE } = require('../constants/finance');
-const { getDateMatch } = require('../utils/general');
+const { getDateMatch, getPaginatedQueryCount } = require('../utils/general');
 
 const getFinanceList = catchAsync(async (req, res, next) => {
   const query = new APIFeatures(
@@ -24,7 +24,7 @@ const getFinanceList = catchAsync(async (req, res, next) => {
     .paginate();
 
   const finances = await query.query;
-  const totalCount = await query.query.countDocuments();
+  const totalCount = await getPaginatedQueryCount(query.query);
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',

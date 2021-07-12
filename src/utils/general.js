@@ -74,6 +74,10 @@ const capitalizeFirstLetter = (string) =>
 // { match: { _id: req.params.id } }
 const mapObjectByReq = (req, obj) => R.map((path) => R.path(path, req), obj);
 
+// get the count of all documents by $match filter but without pagination
+const getPaginatedQueryCount = (query) =>
+  query.skip(0).limit(Infinity).countDocuments();
+
 module.exports = {
   validateUserRole,
   hashString,
@@ -84,4 +88,5 @@ module.exports = {
   getDateInterval,
   capitalizeFirstLetter,
   mapObjectByReq,
+  getPaginatedQueryCount,
 };

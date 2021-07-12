@@ -8,6 +8,7 @@ const {
   updateOne,
   deleteOne,
 } = require('./handler-factory');
+const { getPaginatedQueryCount } = require('../utils/general');
 
 const getMyNotes = catchAsync(async (req, res, next) => {
   const query = new APIFeatures(
@@ -22,7 +23,7 @@ const getMyNotes = catchAsync(async (req, res, next) => {
     .paginate();
 
   const notes = await query.query;
-  const totalCount = await query.query.countDocuments();
+  const totalCount = await getPaginatedQueryCount(query.query);
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
