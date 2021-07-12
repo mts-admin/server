@@ -6,6 +6,7 @@ const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const User = require('../models/user');
 const { updateOne, deleteOne } = require('./handler-factory');
+const { getPaginatedQueryCount } = require('../utils/general');
 
 const getMyBonuses = catchAsync(async (req, res, next) => {
   const query = new APIFeatures(
@@ -19,7 +20,7 @@ const getMyBonuses = catchAsync(async (req, res, next) => {
     .paginate();
 
   const bonuses = await query.query;
-  const totalCount = await query.query.countDocuments();
+  const totalCount = await getPaginatedQueryCount(query.query);
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
@@ -40,7 +41,7 @@ const getUserBonuses = catchAsync(async (req, res, next) => {
     .paginate();
 
   const bonuses = await query.query;
-  const totalCount = await query.query.countDocuments();
+  const totalCount = await getPaginatedQueryCount(query.query);
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
@@ -51,7 +52,7 @@ const getUserBonuses = catchAsync(async (req, res, next) => {
 
 const getBonus = catchAsync(async (req, res, next) => {
   const bonus = await Bonus.findById(req.params.id, (err, item) => {
-    if (!item.viewed && req.user._id.equals(item.userId)) {
+    if (item && !item.viewed && req.user._id.equals(item.userId)) {
       item.viewed = true;
       item.save();
     }

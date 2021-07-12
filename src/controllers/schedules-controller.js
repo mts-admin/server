@@ -7,6 +7,7 @@ const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const APIFeatures = require('../utils/api-features');
 const { getOne, createOne, updateOne } = require('./handler-factory');
+const { getPaginatedQueryCount } = require('../utils/general');
 
 const getSchedule = getOne(Schedule, {
   match: {
@@ -31,7 +32,7 @@ const getMySchedules = catchAsync(async (req, res, next) => {
     .paginate();
 
   const schedules = await query.query;
-  const totalCount = await query.query.countDocuments();
+  const totalCount = await getPaginatedQueryCount(query.query);
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
@@ -53,7 +54,7 @@ const getSharedSchedules = catchAsync(async (req, res, next) => {
     .paginate();
 
   const schedules = await query.query;
-  const totalCount = await query.query.countDocuments();
+  const totalCount = await getPaginatedQueryCount(query.query);
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
