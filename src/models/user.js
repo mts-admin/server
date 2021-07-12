@@ -77,6 +77,16 @@ userSchema.virtual('newBonusesCount', {
   },
 });
 
+userSchema.virtual('newActivitiesCount', {
+  ref: 'Activity',
+  foreignField: 'userId',
+  localField: '_id',
+  count: true,
+  match: {
+    viewed: false,
+  },
+});
+
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
