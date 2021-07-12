@@ -59,6 +59,8 @@ app.use(
 // 2) ROUTES
 app.use('/api/v1', router);
 
+require('./cronjobs');
+
 // for routes which are not exists
 app.all('*', (req, res, next) => {
   next(

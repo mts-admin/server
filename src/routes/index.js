@@ -7,6 +7,7 @@ const visitRouter = require('./visit-routes');
 const financeRouter = require('./finance-routes');
 const noteRouter = require('./note-routes');
 const bonusRouter = require('./bonus-routes');
+const activityRouter = require('./activity-routes');
 
 router.use('/auth', authRouter);
 router.use('/users', userRouter);
@@ -15,5 +16,6 @@ router.use('/visits', visitRouter);
 router.use('/finances', financeRouter);
 router.use('/notes', noteRouter);
 router.use('/bonuses', bonusRouter);
+router.use('/activities', activityRouter);
 
 module.exports = router;

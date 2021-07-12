@@ -9,7 +9,9 @@ const { createSendToken } = require('../utils/auth');
 const { getOne, updateOne } = require('./handler-factory');
 
 const getMe = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user._id).populate('newBonusesCount');
+  const user = await User.findById(req.user._id).populate(
+    'newBonusesCount newActivitiesCount'
+  );
 
   if (!user) {
     return next(createError(HTTP_CODE.NOT_FOUND, 'User not found!'));
