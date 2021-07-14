@@ -1,6 +1,6 @@
 const FINANCE_TYPE = {
-  INCOME: 'INCOME',
-  OUTCOME: 'OUTCOME',
+  INCOME: 'income',
+  OUTCOME: 'outcome',
 };
 
 module.exports = { FINANCE_TYPE };

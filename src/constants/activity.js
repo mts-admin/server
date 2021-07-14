@@ -1,8 +1,8 @@
 const ACTIVITY_STATUS = {
-  CREATED: 'CREATED',
-  ACTIVE: 'ACTIVE',
-  DONE: 'DONE',
-  ARCHIVED: 'ARCHIVED',
+  CREATED: 'created',
+  ACTIVE: 'active',
+  DONE: 'done',
+  ARCHIVED: 'archived',
 };
 
 module.exports = { ACTIVITY_STATUS };

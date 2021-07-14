@@ -10,6 +10,8 @@ const { VISIT_RECURRING, VISIT_STATUS } = require('../constants/visits');
 const { generateRecurringVisitsData } = require('../utils/visits');
 const { getOne, updateOne, deleteOne } = require('./handler-factory');
 
+// TODO: check creating a huge amount of visits
+
 const getScheduleVisits = catchAsync(async (req, res, next) => {
   const { scheduleId } = req.params;
 
@@ -119,11 +121,9 @@ const updateVisitsGroup = catchAsync(async (req, res, next) => {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Visits not found'));
   }
 
-  const visits = await Visit.find({ groupId: req.params.groupId });
-
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
-    data: visits,
+    message: 'Visits have been updated successfully!',
   });
 });
 
