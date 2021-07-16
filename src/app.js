@@ -4,14 +4,14 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const createError = require('http-errors');
+// const xss = require('xss-clean');
 
 const router = require('./routes');
 const globalErrorHandler = require('./controllers/error-controller');
-const httpCodes = require('./constants/http-codes');
+const HTTP_CODE = require('./constants/http-codes');
 const config = require('../config');
 
 const app = express();
@@ -30,7 +30,7 @@ if (config.nodeEnv === 'development') {
   app.use(morgan('dev'));
 }
 
-// Limit requests from same API
+// Limit requests from same IP
 const limiter = rateLimit({
   max: 1000,
   windowMs: 60 * 1000,
@@ -47,11 +47,9 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 
 // Data sanitization against XSS
-// TODO: add allowed tags
-app.use(xss());
+// app.use(xss());
 
 // Prevent parameter pollution
-// TODO: add whitelist params
 app.use(
   hpp({
     // whitelist: [],
@@ -61,11 +59,13 @@ app.use(
 // 2) ROUTES
 app.use('/api/v1', router);
 
+require('./cronjobs');
+
 // for routes which are not exists
 app.all('*', (req, res, next) => {
   next(
     createError(
-      httpCodes.NOT_FOUND,
+      HTTP_CODE.NOT_FOUND,
       `Can't find ${req.originalUrl} on this server`
     )
   );

@@ -1,84 +1,76 @@
 const createError = require('http-errors');
 
-const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
-const httpCodes = require('../constants/http-codes');
+const HTTP_CODE = require('../constants/http-codes');
+const { mapObjectByReq } = require('../utils/general');
 
-exports.getAll = (Model) =>
+const getOne = (Model, { match, populate }) =>
   catchAsync(async (req, res, next) => {
-    const features = new APIFeatures(Model.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
+    const matchOptions = mapObjectByReq(req, match);
 
-    const doc = await features.query;
-
-    res.status(httpCodes.SUCCESS).json({
-      status: 'success',
-      data: doc,
-    });
-  });
-
-exports.getOne = (Model, popOptions) =>
-  catchAsync(async (req, res, next) => {
-    let query = Model.findById(req.params.id);
-    if (popOptions) query = query.populate(popOptions);
-    const doc = await query;
+    const doc = await Model.findOne(matchOptions).populate(populate);
 
     if (!doc) {
-      return next(
-        createError(httpCodes.NOT_FOUND, 'No document found with that ID')
-      );
+      return next(createError(HTTP_CODE.NOT_FOUND, 'Document not found!'));
     }
 
-    res.status(httpCodes.SUCCESS).json({
+    res.status(HTTP_CODE.SUCCESS).json({
       status: 'success',
       data: doc,
     });
   });
 
-exports.createOne = (Model) =>
+const createOne = (Model, { body }) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.create(req.body);
+    const bodyOptions = {
+      ...req.body,
+      ...mapObjectByReq(req, body),
+    };
 
-    res.status(httpCodes.SUCCESS_CREATED).json({
+    const doc = await Model.create(bodyOptions);
+
+    res.status(HTTP_CODE.SUCCESS_CREATED).json({
       status: 'success',
       data: doc,
     });
   });
 
-exports.updateOne = (Model) =>
+const updateOne = (Model, { match, populate, body = {} }) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+    const matchOptions = mapObjectByReq(req, match);
+    const bodyOptions = {
+      ...req.body,
+      ...mapObjectByReq(req, body),
+    };
+
+    const doc = await Model.findOneAndUpdate(matchOptions, bodyOptions, {
       new: true,
-      runValidators: true,
-    });
+    }).populate(populate);
 
     if (!doc) {
-      return next(
-        createError(httpCodes.NOT_FOUND, 'No document found with that ID')
-      );
+      return next(createError(HTTP_CODE.NOT_FOUND, 'Document not found!'));
     }
 
-    res.status(httpCodes.SUCCESS).json({
+    res.status(HTTP_CODE.SUCCESS).json({
       status: 'success',
       data: doc,
     });
   });
 
-exports.deleteOne = (Model) =>
+const deleteOne = (Model, { match }) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndDelete(req.params.id);
+    const matchOptions = mapObjectByReq(req, match);
+
+    const doc = await Model.findOneAndDelete(matchOptions);
 
     if (!doc) {
-      return next(
-        createError(httpCodes.NOT_FOUND, 'No document found with that ID')
-      );
+      return next(createError(HTTP_CODE.NOT_FOUND, 'Document not found!'));
     }
 
-    res.status(httpCodes.SUCCESS_DELETED).json({
+    res.status(HTTP_CODE.SUCCESS_DELETED).json({
       status: 'success',
       data: null,
     });
   });
+
+module.exports = { getOne, updateOne, deleteOne, createOne };

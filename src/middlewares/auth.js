@@ -4,13 +4,9 @@ const createError = require('http-errors');
 
 const User = require('../models/user');
 const catchAsync = require('../utils/catch-async');
-const httpCodes = require('../constants/http-codes');
+const HTTP_CODE = require('../constants/http-codes');
 const config = require('../../config');
-
-const getMe = (req, res, next) => {
-  req.params.id = req.user.id;
-  next();
-};
+const { USER_STATUS } = require('../constants/users');
 
 const protect = catchAsync(async (req, res, next) => {
   // Getting token and check of it's there
@@ -20,14 +16,15 @@ const protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
   }
+  // else if (req.cookies.jwt) {
+  //   token = req.cookies.jwt;
+  // }
 
   if (!token) {
     return next(
       createError(
-        httpCodes.UNAUTHORIZED,
+        HTTP_CODE.UNAUTHORIZED,
         'You are not logged in! Please log in to get access.'
       )
     );
@@ -37,12 +34,16 @@ const protect = catchAsync(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, config.jwtSecret);
 
   // Check if user still exists
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await User.findOne({
+    _id: decoded.id,
+    status: USER_STATUS.ACTIVE,
+  });
+
   if (!currentUser) {
     return next(
       createError(
-        httpCodes.UNAUTHORIZED,
-        'The user belonging to this token does no longer exist.'
+        HTTP_CODE.UNAUTHORIZED,
+        'This user has been deleted or deactivated.'
       )
     );
   }
@@ -51,7 +52,7 @@ const protect = catchAsync(async (req, res, next) => {
   if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
       createError(
-        httpCodes.UNAUTHORIZED,
+        HTTP_CODE.UNAUTHORIZED,
         'User recently changed password! Please log in again.'
       )
     );
@@ -67,7 +68,7 @@ const restrictTo =
     if (!roles.includes(req.user.role)) {
       return next(
         createError(
-          httpCodes.FORBIDDEN,
+          HTTP_CODE.FORBIDDEN,
           'You do not have permission to perform this action'
         )
       );
@@ -76,4 +77,4 @@ const restrictTo =
     next();
   };
 
-module.exports = { getMe, protect, restrictTo };
+module.exports = { protect, restrictTo };

@@ -1,43 +1,49 @@
 const createError = require('http-errors');
-const httpCodes = require('../constants/http-codes');
-const config = require('../../config');
+const { isCelebrateError } = require('celebrate');
+
+const HTTP_CODE = require('../constants/http-codes');
 
 const handleJWTError = () =>
-  createError(httpCodes.UNAUTHORIZED, 'Invalid token. Please log in again!');
+  createError(HTTP_CODE.UNAUTHORIZED, 'Invalid token. Please log in again!');
 
 const handleJWTExpiredError = () =>
   createError(
-    httpCodes.UNAUTHORIZED,
+    HTTP_CODE.UNAUTHORIZED,
     'Your token has expired! Please log in again.'
   );
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
-  return createError(httpCodes.BAD_REQUEST, message);
+  return createError(HTTP_CODE.BAD_REQUEST, message);
 };
 
 const handleDuplicateFieldsDB = (err) => {
   const value = Object.values(err.keyValue).join(', ');
-  const message = `Duplicate field value: ${value}. Please use another value!`;
+  const message = `This value must be unique: ${value}. Please use another one!`;
 
-  return createError(httpCodes.BAD_REQUEST, message);
+  return createError(HTTP_CODE.BAD_REQUEST, message);
 };
 
 const handleValidationErrorDB = (err) => {
   const errors = Object.values(err.errors).map((el) => el.message);
   const message = `Invalid input data. ${errors.join('. ')}`;
 
-  return createError(httpCodes.BAD_REQUEST, message);
+  return createError(HTTP_CODE.BAD_REQUEST, message);
 };
 
-const sendErrorDev = (err, req, res) =>
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-    error: err,
+const handleJoiError = (err) => {
+  const fullMessage = [];
+  // err.details is Map so we need to iterate it by forEach
+  err.details.forEach((value) => {
+    const errorMessage = value.details.map((i) => i.message).join('; ');
+    fullMessage.push(errorMessage);
   });
+  const message = `Validation error: ${fullMessage.join('; ')}`;
 
-const sendErrorProd = (err, req, res) => {
+  return createError(HTTP_CODE.BAD_REQUEST, message);
+};
+
+const sendError = (err, req, res) => {
   // Operational, trusted error
   if (createError.isHttpError(err)) {
     return res.status(err.statusCode).json({
@@ -47,28 +53,26 @@ const sendErrorProd = (err, req, res) => {
   }
 
   // Programming or other unknown error
-  return res.status(httpCodes.SERVER_ERROR).json({
+  return res.status(HTTP_CODE.SERVER_ERROR).json({
     status: 'error',
     message: 'Something went wrong!',
   });
 };
 
 module.exports = (err, req, res, next) => {
-  err.statusCode = err.statusCode || httpCodes.SERVER_ERROR;
+  console.error(err);
+
+  err.statusCode = err.statusCode || HTTP_CODE.SERVER_ERROR;
   err.status = 'error';
 
-  if (config.nodeEnv === 'development') {
-    sendErrorDev(err, req, res);
-  } else if (config.nodeEnv === 'production') {
-    let error = Object.create(err);
+  let error = Object.create(err);
 
-    if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-    if (error.name === 'CastError') error = handleCastErrorDB(error);
-    if (error.name === 'ValidationError')
-      error = handleValidationErrorDB(error);
-    if (error.name === 'JsonWebTokenError') error = handleJWTError();
-    if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();
+  if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+  if (error.name === 'CastError') error = handleCastErrorDB(error);
+  if (error.name === 'ValidationError') error = handleValidationErrorDB(error);
+  if (error.name === 'JsonWebTokenError') error = handleJWTError();
+  if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();
+  if (isCelebrateError(error)) error = handleJoiError(error);
 
-    sendErrorProd(error, req, res);
-  }
+  sendError(error, req, res);
 };

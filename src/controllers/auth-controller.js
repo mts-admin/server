@@ -2,7 +2,7 @@ const createError = require('http-errors');
 
 const User = require('../models/user');
 const catchAsync = require('../utils/catch-async');
-const httpCodes = require('../constants/http-codes');
+const HTTP_CODE = require('../constants/http-codes');
 const { createSendToken } = require('../utils/auth');
 const Email = require('../utils/email');
 const {
@@ -31,7 +31,7 @@ const inviteUser = catchAsync(async (req, res, next) => {
 
     await new Email(newUser, registrationUrl).sendInvitation();
 
-    res.status(httpCodes.SUCCESS_CREATED).json({
+    res.status(HTTP_CODE.SUCCESS_CREATED).json({
       status: 'success',
       message: 'Invitation has been sent to email!',
     });
@@ -40,7 +40,7 @@ const inviteUser = catchAsync(async (req, res, next) => {
 
     return next(
       createError(
-        httpCodes.SERVER_ERROR,
+        HTTP_CODE.SERVER_ERROR,
         'There was an error sending the email. Try again later!'
       )
     );
@@ -57,13 +57,13 @@ const getInvitationData = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(
       createError(
-        httpCodes.BAD_REQUEST,
+        HTTP_CODE.BAD_REQUEST,
         'Invitation link is invalid or has expired'
       )
     );
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: { user },
   });
@@ -79,7 +79,7 @@ const signUpByInvitation = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(
       createError(
-        httpCodes.BAD_REQUEST,
+        HTTP_CODE.BAD_REQUEST,
         'Invitation link is invalid or has expired'
       )
     );
@@ -91,7 +91,7 @@ const signUpByInvitation = catchAsync(async (req, res, next) => {
   user.techData.invitationToken = undefined;
   await user.save();
 
-  createSendToken(user, httpCodes.SUCCESS, res);
+  createSendToken(user, HTTP_CODE.SUCCESS, res);
 });
 
 const cancelInvitation = catchAsync(async (req, res, next) => {
@@ -104,13 +104,13 @@ const cancelInvitation = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(
       createError(
-        httpCodes.NOT_FOUND,
+        HTTP_CODE.NOT_FOUND,
         'This invitation has been already canceled'
       )
     );
   }
 
-  res.status(httpCodes.SUCCESS_DELETED).json({
+  res.status(HTTP_CODE.SUCCESS_DELETED).json({
     status: 'success',
     message: 'Invitation has been canceled successfully!',
   });
@@ -119,34 +119,34 @@ const cancelInvitation = catchAsync(async (req, res, next) => {
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return next(
-      createError(httpCodes.BAD_REQUEST, 'Please provide email and password!')
-    );
-  }
-
-  const user = await User.findOne({ email }).select('+password');
+  // TODO: Think about unique errors for 'invited' & 'deactivated' statuses
+  const user = await User.findOne({
+    email,
+    status: USER_STATUS.ACTIVE,
+  }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(
-      createError(httpCodes.UNAUTHORIZED, 'Incorrect email or password')
+      createError(HTTP_CODE.UNAUTHORIZED, 'Incorrect email or password')
     );
   }
 
-  createSendToken(user, httpCodes.SUCCESS, res);
+  createSendToken(user, HTTP_CODE.SUCCESS, res);
 });
 
 const logout = (req, res) => {
-  res.clearCookie('jwt');
+  // res.clearCookie('jwt');
+  req.logout();
 
-  res.status(httpCodes.SUCCESS).json({ status: 'success' });
+  res.status(HTTP_CODE.SUCCESS).json({ status: 'success' });
 };
 
 const forgotPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
+
   if (!user) {
     return next(
-      createError(httpCodes.NOT_FOUND, 'There is no user with email address.')
+      createError(HTTP_CODE.NOT_FOUND, 'There is no user with email address.')
     );
   }
 
@@ -159,7 +159,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 
     await new Email(user, resetURL).sendPasswordReset();
 
-    res.status(httpCodes.SUCCESS).json({
+    res.status(HTTP_CODE.SUCCESS).json({
       status: 'success',
       message: 'Token sent to email!',
     });
@@ -170,7 +170,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 
     return next(
       createError(
-        httpCodes.SERVER_ERROR,
+        HTTP_CODE.SERVER_ERROR,
         'There was an error sending the email. Try again later!'
       )
     );
@@ -187,7 +187,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
 
   if (!user) {
     return next(
-      createError(httpCodes.BAD_REQUEST, 'Reset link is invalid or has expired')
+      createError(HTTP_CODE.BAD_REQUEST, 'Reset link is invalid or has expired')
     );
   }
 
@@ -195,25 +195,10 @@ const resetPassword = catchAsync(async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   user.techData.passwordResetToken = undefined;
   user.techData.passwordResetExpires = undefined;
+  user.techData.passwordChangedAt = Date.now();
   await user.save();
 
-  createSendToken(user, httpCodes.SUCCESS, res);
-});
-
-const updatePassword = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select('+password');
-
-  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
-    return next(
-      createError(httpCodes.UNAUTHORIZED, 'Your current password is wrong.')
-    );
-  }
-
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
-  await user.save();
-
-  createSendToken(user, httpCodes.SUCCESS, res);
+  createSendToken(user, HTTP_CODE.SUCCESS, res);
 });
 
 module.exports = {
@@ -222,7 +207,6 @@ module.exports = {
   inviteUser,
   resetPassword,
   forgotPassword,
-  updatePassword,
   cancelInvitation,
   getInvitationData,
   signUpByInvitation,

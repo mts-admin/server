@@ -1,11 +1,23 @@
-const R = require('ramda');
 const createError = require('http-errors');
 
 const User = require('../models/user');
+const Visit = require('../models/visit');
 const Schedule = require('../models/schedule');
 const catchAsync = require('../utils/catch-async');
-const httpCodes = require('../constants/http-codes');
+const HTTP_CODE = require('../constants/http-codes');
 const APIFeatures = require('../utils/api-features');
+const { getOne, createOne, updateOne } = require('./handler-factory');
+const { getPaginatedQueryCount } = require('../utils/general');
+
+const getSchedule = getOne(Schedule, {
+  match: {
+    _id: ['params', 'id'],
+  },
+  populate: {
+    path: 'owner participants.user',
+    select: 'name avatar',
+  },
+});
 
 const getMySchedules = catchAsync(async (req, res, next) => {
   const query = new APIFeatures(
@@ -20,9 +32,9 @@ const getMySchedules = catchAsync(async (req, res, next) => {
     .paginate();
 
   const schedules = await query.query;
-  const totalCount = await query.query.countDocuments();
+  const totalCount = await getPaginatedQueryCount(query.query);
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     count: totalCount,
     data: schedules,
@@ -42,49 +54,35 @@ const getSharedSchedules = catchAsync(async (req, res, next) => {
     .paginate();
 
   const schedules = await query.query;
-  const totalCount = await query.query.countDocuments();
+  const totalCount = await getPaginatedQueryCount(query.query);
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     count: totalCount,
     data: schedules,
   });
 });
 
-const createSchedule = catchAsync(async (req, res, next) => {
-  const body = R.pick(['name', 'description'], req.body);
-
-  const schedule = await Schedule.create({
-    ...body,
-    owner: req.user._id,
-  });
-
-  res.status(httpCodes.SUCCESS_CREATED).json({
-    status: 'success',
-    data: schedule,
-  });
+const createSchedule = createOne(Schedule, {
+  body: {
+    owner: ['user', 'id'],
+  },
 });
 
-// checking if schedule exists was implemented in middleware
-const updateSchedule = catchAsync(async (req, res, next) => {
-  const body = R.pick(['name', 'description'], req.body);
-
-  const schedule = await Schedule.findByIdAndUpdate(req.params.id, body, {
-    new: true,
-  });
-
-  res.status(httpCodes.SUCCESS).json({
-    status: 'success',
-    data: schedule,
-  });
+const updateSchedule = updateOne(Schedule, {
+  match: {
+    _id: ['params', 'id'],
+  },
 });
 
-// TODO: remove all visits
 // checking if schedule exists was implemented in middleware
 const deleteSchedule = catchAsync(async (req, res, next) => {
-  await Schedule.findByIdAndDelete(req.params.id);
+  await Promise.all([
+    Visit.deleteMany({ scheduleId: req.params.id }),
+    Schedule.findByIdAndDelete(req.params.id),
+  ]);
 
-  res.status(httpCodes.SUCCESS_DELETED).json({
+  res.status(HTTP_CODE.SUCCESS_DELETED).json({
     status: 'success',
     data: null,
   });
@@ -96,12 +94,12 @@ const addParticipant = catchAsync(async (req, res, next) => {
   const participant = await User.findOne({ email: participantEmail });
 
   if (!participant) {
-    return next(createError(httpCodes.NOT_FOUND, 'User not found!'));
+    return next(createError(HTTP_CODE.NOT_FOUND, 'User not found!'));
   }
 
   if (participant._id.equals(req.user._id)) {
     return next(
-      createError(httpCodes.BAD_REQUEST, 'You cannot invite yourself!')
+      createError(HTTP_CODE.BAD_REQUEST, 'You cannot invite yourself!')
     );
   }
 
@@ -119,18 +117,18 @@ const addParticipant = catchAsync(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('participants.user', 'name avatar');
 
   if (!schedule) {
     return next(
       createError(
-        httpCodes.BAD_REQUEST,
+        HTTP_CODE.BAD_REQUEST,
         'This schedule does not exist or user is already a participant!'
       )
     );
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: schedule,
   });
@@ -148,18 +146,18 @@ const updateParticipant = catchAsync(async (req, res, next) => {
       'participants.$.permissions': permissions,
     },
     { new: true }
-  );
+  ).populate('participants.user', 'name avatar');
 
   if (!schedule) {
     return next(
       createError(
-        httpCodes.BAD_REQUEST,
+        HTTP_CODE.BAD_REQUEST,
         'This schedule does not exist or user is not a participant!'
       )
     );
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: schedule,
   });
@@ -179,18 +177,18 @@ const removeParticipant = catchAsync(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('participants.user', 'name avatar');
 
   if (!schedule) {
     return next(
       createError(
-        httpCodes.NOT_FOUND,
+        HTTP_CODE.NOT_FOUND,
         'This schedule does not exist or user is not a participant!'
       )
     );
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: schedule,
   });
@@ -215,19 +213,20 @@ const leaveSchedule = catchAsync(async (req, res, next) => {
   if (!schedule) {
     return next(
       createError(
-        httpCodes.NOT_FOUND,
+        HTTP_CODE.NOT_FOUND,
         'This schedule does not exist or you are not a participant!'
       )
     );
   }
 
-  res.status(httpCodes.SUCCESS).json({
+  res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: null,
   });
 });
 
 module.exports = {
+  getSchedule,
   getMySchedules,
   getSharedSchedules,
   createSchedule,
