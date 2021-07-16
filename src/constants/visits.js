@@ -1,12 +1,12 @@
 const VISIT_RECURRING = {
-  ONE_OFF: 'ONE_OFF',
-  DAILY: 'DAILY',
-  WEEKLY: 'WEEKLY',
+  ONE_OFF: 'one_off',
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
 };
 
 const VISIT_STATUS = {
-  ACTIVE: 'ACTIVE',
-  CANCELED: 'CANCELED',
+  ACTIVE: 'active',
+  CANCELED: 'cancelled',
 };
 
 module.exports = { VISIT_RECURRING, VISIT_STATUS };

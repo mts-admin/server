@@ -57,6 +57,15 @@ const createRecurringVisits = catchAsync(async (req, res, next) => {
     daysOfWeek, // is used only for weekly visits
   } = req.body;
 
+  if (moment(fromDate).diff(toDate, 'year') !== 0) {
+    return next(
+      createError(
+        HTTP_CODE.BAD_REQUEST,
+        'You cannot create visits for more than 1 year!'
+      )
+    );
+  }
+
   const visitsData = generateRecurringVisitsData({
     title,
     notes,
@@ -119,11 +128,9 @@ const updateVisitsGroup = catchAsync(async (req, res, next) => {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Visits not found'));
   }
 
-  const visits = await Visit.find({ groupId: req.params.groupId });
-
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
-    data: visits,
+    message: 'Visits have been updated successfully!',
   });
 });
 
