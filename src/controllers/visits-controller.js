@@ -10,8 +10,6 @@ const { VISIT_RECURRING, VISIT_STATUS } = require('../constants/visits');
 const { generateRecurringVisitsData } = require('../utils/visits');
 const { getOne, updateOne, deleteOne } = require('./handler-factory');
 
-// TODO: check creating a huge amount of visits
-
 const getScheduleVisits = catchAsync(async (req, res, next) => {
   const { scheduleId } = req.params;
 
@@ -58,6 +56,15 @@ const createRecurringVisits = catchAsync(async (req, res, next) => {
     recurring,
     daysOfWeek, // is used only for weekly visits
   } = req.body;
+
+  if (moment(fromDate).diff(toDate, 'year') !== 0) {
+    return next(
+      createError(
+        HTTP_CODE.BAD_REQUEST,
+        'You cannot create visits for more than 1 year!'
+      )
+    );
+  }
 
   const visitsData = generateRecurringVisitsData({
     title,
