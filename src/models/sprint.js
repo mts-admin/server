@@ -31,6 +31,8 @@ const sprintSchema = new Schema({
   },
 });
 
+sprintSchema.index({ status: 1 });
+
 const Sprint = model('Sprint', sprintSchema);
 
 module.exports = Sprint;

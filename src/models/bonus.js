@@ -33,6 +33,8 @@ const bonusSchema = new Schema({
   },
 });
 
+bonusSchema.index({ title: 1, description: 1 });
+
 const Bonus = model('Bonus', bonusSchema);
 
 module.exports = Bonus;
