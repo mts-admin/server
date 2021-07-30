@@ -21,13 +21,21 @@ const getMyActivities = catchAsync(async (req, res, next) => {
     .filter()
     .paginate();
 
-  // TODO: add count of items with 'CREATED' state
   const activities = await query.query;
-  const totalCount = await getPaginatedQueryCount(query.query);
+  const [currentCount, restCount] = await Promise.all([
+    getPaginatedQueryCount(query.query),
+    Activity.countDocuments({
+      userId: req.user._id,
+      status: ACTIVITY_STATUS.CREATED,
+    }),
+  ]);
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
-    count: totalCount,
+    count: {
+      currentCount,
+      restCount,
+    },
     data: activities,
   });
 });

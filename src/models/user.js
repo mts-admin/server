@@ -67,6 +67,8 @@ const userSchema = new Schema(
   }
 );
 
+userSchema.index({ name: 1 });
+
 userSchema.virtual('newBonusesCount', {
   ref: 'Bonus',
   foreignField: 'userId',

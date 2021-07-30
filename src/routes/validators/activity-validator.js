@@ -6,6 +6,13 @@ const getActivitiesSchema = Joi.object({
   limit: Joi.number().integer().optional(),
   search: Joi.string().optional(),
   viewed: Joi.boolean().optional(),
+  status: Joi.string()
+    .valid(
+      ACTIVITY_STATUS.ACTIVE,
+      ACTIVITY_STATUS.DONE,
+      ACTIVITY_STATUS.ARCHIVED
+    )
+    .optional(),
 });
 
 const createActivitySchema = Joi.object({
