@@ -29,6 +29,8 @@ const financeSchema = new Schema({
   },
 });
 
+financeSchema.index({ title: 1, description: 1, date: 1 });
+
 const Finance = model('Finance', financeSchema);
 
 module.exports = Finance;

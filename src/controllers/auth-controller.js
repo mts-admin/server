@@ -119,7 +119,6 @@ const cancelInvitation = catchAsync(async (req, res, next) => {
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  // TODO: Think about unique errors for 'invited' & 'deactivated' statuses
   const user = await User.findOne({
     email,
     status: USER_STATUS.ACTIVE,
@@ -142,7 +141,10 @@ const logout = (req, res) => {
 };
 
 const forgotPassword = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
+  const user = await User.findOne({
+    email: req.body.email,
+    status: USER_STATUS.ACTIVE,
+  });
 
   if (!user) {
     return next(
