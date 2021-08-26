@@ -11,13 +11,13 @@ const createBonusSchema = Joi.object({
   title: Joi.string().required(),
   description: Joi.string().required(),
   userId: Joi.string().required(),
-  image: Joi.string().optional(),
+  image: Joi.any().optional(),
 });
 
 const updateBonusSchema = Joi.object({
   title: Joi.string().optional(),
   description: Joi.string().optional(),
-  image: Joi.string().optional(),
+  image: Joi.any().optional(),
 });
 
 const getBonusesListValidator = celebrate({

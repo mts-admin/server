@@ -117,7 +117,7 @@ const deleteVisit = deleteOne(Visit, {
 
 const updateVisitsGroup = catchAsync(async (req, res, next) => {
   const data = await Visit.updateMany(
-    { groupId: req.params.groupId },
+    { scheduleId: req.params.scheduleId, groupId: req.params.groupId },
     req.body,
     {
       new: true,
@@ -135,7 +135,10 @@ const updateVisitsGroup = catchAsync(async (req, res, next) => {
 });
 
 const deleteVisitsGroup = catchAsync(async (req, res, next) => {
-  const data = await Visit.deleteMany({ groupId: req.params.groupId });
+  const data = await Visit.deleteMany({
+    scheduleId: req.params.scheduleId,
+    groupId: req.params.groupId,
+  });
 
   if (data.n === 0) {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Visits not found'));

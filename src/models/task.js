@@ -30,6 +30,8 @@ const taskSchema = new Schema({
   },
 });
 
+taskSchema.index({ userId: 1, sprintId: 1 });
+
 const Task = model('Task', taskSchema);
 
 module.exports = Task;

@@ -25,7 +25,7 @@ const noteSchema = new Schema({
   },
 });
 
-noteSchema.index({ title: 1, content: 1, tags: 1 });
+noteSchema.index({ userId: 1, title: 1, content: 1, tags: 1 });
 
 const Note = model('Note', noteSchema);
 

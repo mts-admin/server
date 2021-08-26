@@ -28,10 +28,7 @@ const userSchema = new Schema(
       enum: Object.values(USER_ROLE),
       default: USER_ROLE.USER,
     },
-    avatar: {
-      type: String,
-      default: 'default-avatar.png',
-    },
+    avatar: String,
     invitedBy: {
       type: Schema.ObjectId,
       ref: 'User',
@@ -67,7 +64,7 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.index({ name: 1 });
+userSchema.index({ name: 1, status: 1 });
 
 userSchema.virtual('newBonusesCount', {
   ref: 'Bonus',

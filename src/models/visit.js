@@ -58,7 +58,7 @@ const visitSchema = new Schema(
   }
 );
 
-visitSchema.index({ startTime: 1, endTime: 1 });
+visitSchema.index({ scheduleId: 1, groupId: 1, startTime: 1, endTime: 1 });
 
 visitSchema.virtual('duration').get(function () {
   const diff = getDateDiff(this.startTime, this.endTime);

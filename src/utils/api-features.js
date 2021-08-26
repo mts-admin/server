@@ -46,16 +46,6 @@ class APIFeatures {
     return this;
   }
 
-  paginate() {
-    const page = this.queryString.page * 1 || 1;
-    const limit = this.queryString.limit * 1 || 9;
-    const skip = (page - 1) * limit;
-
-    this.query = this.query.skip(skip).limit(limit);
-
-    return this;
-  }
-
   search(...fields) {
     if (this.queryString.search && !R.isEmpty(fields)) {
       const match = getSearchMatch(this.queryString.search, fields);
@@ -75,6 +65,20 @@ class APIFeatures {
     this.query = this.query.find(getDateMatch(start, end, fieldName));
 
     return this;
+  }
+
+  paginate() {
+    const page = this.queryString.page * 1 || 1;
+    const limit = this.queryString.limit * 1 || 9;
+    const skip = (page - 1) * limit;
+
+    this.query = this.query.skip(skip).limit(limit);
+
+    return this;
+  }
+
+  countDocuments() {
+    return this.query.skip(0).limit(Infinity).countDocuments();
   }
 }
 
