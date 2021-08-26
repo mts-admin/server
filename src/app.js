@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
+const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -19,6 +20,9 @@ const app = express();
 app.set('view engine', 'pug');
 
 // 1) GLOBAL MIDDLEWARES
+// CORS
+app.use(cors());
+
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
