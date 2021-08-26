@@ -55,7 +55,7 @@ scheduleSchema.virtual('visits', {
   localField: '_id',
 });
 
-scheduleSchema.index({ name: 1, description: 1 });
+scheduleSchema.index({ owner: 1, name: 1, description: 1 });
 
 const Schedule = model('Schedule', scheduleSchema);
 

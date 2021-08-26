@@ -31,7 +31,7 @@ const sprintSchema = new Schema({
   },
 });
 
-sprintSchema.index({ status: 1 });
+sprintSchema.index({ userId: 1, status: 1 });
 
 const Sprint = model('Sprint', sprintSchema);
 

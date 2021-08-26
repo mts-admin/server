@@ -31,7 +31,7 @@ const activitySchema = new Schema({
   },
 });
 
-activitySchema.index({ content: 1 });
+activitySchema.index({ userId: 1, status: 1, content: 1 });
 
 const Activity = model('Activity', activitySchema);
 

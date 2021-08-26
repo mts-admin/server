@@ -13,10 +13,7 @@ const bonusSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  image: {
-    type: String,
-    default: 'gift.png',
-  },
+  image: String,
   userId: {
     type: Schema.ObjectId,
     ref: 'User',
@@ -33,7 +30,7 @@ const bonusSchema = new Schema({
   },
 });
 
-bonusSchema.index({ title: 1, description: 1 });
+bonusSchema.index({ userId: 1, title: 1, description: 1 });
 
 const Bonus = model('Bonus', bonusSchema);
 
