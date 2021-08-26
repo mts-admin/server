@@ -4,6 +4,7 @@ const escapeStringRegexp = require('escape-string-regexp');
 
 const moment = require('./moment');
 const { USER_ROLE } = require('../constants/users');
+const { IMAGE_FIELD_NAME, IMAGE_TYPE } = require('../constants/image-types');
 
 const validateUserRole = (role) => {
   const allowedRoles = [USER_ROLE.USER, USER_ROLE.ADMIN];
@@ -74,9 +75,22 @@ const capitalizeFirstLetter = (string) =>
 // { match: { _id: req.params.id } }
 const mapObjectByReq = (req, obj) => R.map((path) => R.path(path, req), obj);
 
-// get the count of all documents by $match filter but without pagination
-const getPaginatedQueryCount = (query) =>
-  query.skip(0).limit(Infinity).countDocuments();
+const getFileSize = (fileName) => {
+  const ONE_MB_IN_BYTES = 1048576;
+
+  return R.cond([
+    [R.equals(IMAGE_FIELD_NAME.IMAGE), () => ONE_MB_IN_BYTES * 2],
+    [R.equals(IMAGE_FIELD_NAME.AVATAR), () => ONE_MB_IN_BYTES * 5],
+    [R.T, () => ONE_MB_IN_BYTES],
+  ])(fileName);
+};
+
+const getFileResolution = (type) =>
+  R.cond([
+    [R.equals(IMAGE_TYPE.BONUS), () => [1200, 1200]],
+    [R.equals(IMAGE_TYPE.USER), () => [800, 800]],
+    [R.T, () => [800, 800]],
+  ])(type);
 
 module.exports = {
   validateUserRole,
@@ -88,5 +102,6 @@ module.exports = {
   getDateInterval,
   capitalizeFirstLetter,
   mapObjectByReq,
-  getPaginatedQueryCount,
+  getFileSize,
+  getFileResolution,
 };
