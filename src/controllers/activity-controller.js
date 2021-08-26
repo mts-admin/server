@@ -7,7 +7,6 @@ const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const { updateOne, deleteOne } = require('./handler-factory');
 const { ACTIVITY_STATUS } = require('../constants/activity');
-const { getPaginatedQueryCount } = require('../utils/general');
 
 const getMyActivities = catchAsync(async (req, res, next) => {
   const query = new APIFeatures(
@@ -23,7 +22,7 @@ const getMyActivities = catchAsync(async (req, res, next) => {
 
   const activities = await query.query;
   const [currentCount, restCount] = await Promise.all([
-    getPaginatedQueryCount(query.query),
+    query.countDocuments(),
     Activity.countDocuments({
       userId: req.user._id,
       status: ACTIVITY_STATUS.CREATED,
@@ -52,7 +51,7 @@ const getUserActivities = catchAsync(async (req, res, next) => {
     .paginate();
 
   const activities = await query.query;
-  const totalCount = await getPaginatedQueryCount(query.query);
+  const totalCount = await query.countDocuments();
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
