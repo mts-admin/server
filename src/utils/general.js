@@ -59,7 +59,17 @@ const getDateInterval = (startDate, endDate) => {
 };
 
 const getDateDiff = (start, end) => {
-  const diff = moment(end).diff(moment(start));
+  const startDate = moment().set({
+    hour: moment(start).get('hour'),
+    minute: moment(start).get('minute'),
+    millisecond: 0,
+  });
+  const endDate = moment().set({
+    hour: moment(end).get('hour'),
+    minute: moment(end).get('minute'),
+    millisecond: 0,
+  });
+  const diff = endDate.diff(startDate);
 
   const seconds = Math.abs(diff) / 1000;
   const hours = Math.floor(seconds / 3600);

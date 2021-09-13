@@ -18,7 +18,7 @@ const createFinanceItemSchema = Joi.object({
   type: Joi.string()
     .valid(FINANCE_TYPE.INCOME, FINANCE_TYPE.OUTCOME)
     .required(),
-  date: Joi.date().iso().optional(),
+  date: Joi.date().iso().required(),
 });
 
 const updateFinanceItemSchema = Joi.object({

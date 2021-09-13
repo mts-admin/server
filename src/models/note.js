@@ -19,10 +19,7 @@ const noteSchema = new Schema({
     ref: 'User',
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
+  createdAt: Date,
 });
 
 noteSchema.index({ userId: 1, title: 1, content: 1, tags: 1 });

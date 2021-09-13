@@ -4,6 +4,7 @@ const Activity = require('../models/activity');
 const User = require('../models/user');
 const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
+const moment = require('../utils/moment');
 const HTTP_CODE = require('../constants/http-codes');
 const { updateOne, deleteOne } = require('./handler-factory');
 const { ACTIVITY_STATUS } = require('../constants/activity');
@@ -88,6 +89,7 @@ const createActivity = catchAsync(async (req, res, next) => {
   const activity = await Activity.create({
     ...req.body,
     createdBy: req.user._id,
+    createdAt: moment().format(),
   });
 
   res.status(HTTP_CODE.SUCCESS_CREATED).json({

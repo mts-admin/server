@@ -5,6 +5,7 @@ const User = require('../models/user');
 const Bonus = require('../models/bonus');
 const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
+const moment = require('../utils/moment');
 const {
   uploadSingleImage,
   updateSingleImage,
@@ -82,6 +83,7 @@ const createBonus = catchAsync(async (req, res, next) => {
 
   const data = {
     ...req.body,
+    createdAt: moment().format(),
     createdBy: req.user._id,
   };
 

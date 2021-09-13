@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 
+const moment = require('../utils/moment');
 const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const { mapObjectByReq } = require('../utils/general');
@@ -24,6 +25,7 @@ const createOne = (Model, { body }) =>
   catchAsync(async (req, res, next) => {
     const bodyOptions = {
       ...req.body,
+      createdAt: moment().format(),
       ...mapObjectByReq(req, body),
     };
 

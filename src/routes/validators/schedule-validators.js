@@ -8,10 +8,8 @@ const createScheduleSchema = Joi.object({
 
 const getSchedulesQuerySchema = Joi.object({
   sort: Joi.string().optional(),
-  fields: Joi.string().optional(),
   page: Joi.number().integer().optional(),
   limit: Joi.number().integer().optional(),
-  search: Joi.string().optional(),
 });
 
 const updateScheduleSchema = Joi.object({

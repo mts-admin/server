@@ -20,10 +20,7 @@ const activitySchema = new Schema({
     ref: 'User',
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
+  createdAt: Date,
   createdBy: {
     type: Schema.ObjectId,
     ref: 'User',

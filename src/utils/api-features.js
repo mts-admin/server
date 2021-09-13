@@ -11,6 +11,7 @@ class APIFeatures {
     this.queryString = queryString;
   }
 
+  // filter by fields in query
   filter() {
     const queryObj = R.omit(EXCLUDES_FIELDS, this.queryString);
 
@@ -46,6 +47,12 @@ class APIFeatures {
     return this;
   }
 
+  select(fields) {
+    this.query = this.query.select(fields.join(' '));
+
+    return this;
+  }
+
   search(...fields) {
     if (this.queryString.search && !R.isEmpty(fields)) {
       const match = getSearchMatch(this.queryString.search, fields);
@@ -73,6 +80,12 @@ class APIFeatures {
     const skip = (page - 1) * limit;
 
     this.query = this.query.skip(skip).limit(limit);
+
+    return this;
+  }
+
+  populate(path, select) {
+    this.query = this.query.populate(path, select);
 
     return this;
   }

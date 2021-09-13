@@ -25,10 +25,7 @@ const sprintSchema = new Schema({
     ref: 'User',
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
+  createdAt: Date,
 });
 
 sprintSchema.index({ userId: 1, status: 1 });

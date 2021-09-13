@@ -18,10 +18,7 @@ const financeSchema = new Schema({
     required: true,
     enum: Object.values(FINANCE_TYPE),
   },
-  date: {
-    type: Date,
-    default: Date.now(),
-  },
+  date: Date,
   userId: {
     type: Schema.ObjectId,
     ref: 'User',

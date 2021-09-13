@@ -37,6 +37,7 @@ const createOneOffVisit = catchAsync(async (req, res, next) => {
     recurring: VISIT_RECURRING.ONE_OFF,
     status: VISIT_STATUS.ACTIVE,
     createdBy: req.user._id,
+    createdAt: moment().format(),
   });
 
   res.status(HTTP_CODE.SUCCESS_CREATED).json({

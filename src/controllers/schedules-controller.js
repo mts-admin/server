@@ -26,8 +26,7 @@ const getMySchedules = catchAsync(async (req, res, next) => {
     req.query
   )
     .sort()
-    .limitFields()
-    .search('name', 'description')
+    .populate('owner participants.user', 'name avatar -_id')
     .paginate();
 
   const schedules = await query.query;
@@ -48,8 +47,7 @@ const getSharedSchedules = catchAsync(async (req, res, next) => {
     req.query
   )
     .sort()
-    .limitFields()
-    .search('name', 'description')
+    .populate('owner participants.user', 'name avatar -_id')
     .paginate();
 
   const schedules = await query.query;
