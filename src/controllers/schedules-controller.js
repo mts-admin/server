@@ -70,6 +70,10 @@ const updateSchedule = updateOne(Schedule, {
   match: {
     _id: ['params', 'id'],
   },
+  populate: {
+    path: 'owner participants.user',
+    select: 'name avatar -_id',
+  },
 });
 
 // checking if schedule exists was implemented in middleware
@@ -114,7 +118,7 @@ const addParticipant = catchAsync(async (req, res, next) => {
       },
     },
     { new: true }
-  ).populate('participants.user', 'name avatar');
+  ).populate('owner participants.user', 'name avatar');
 
   if (!schedule) {
     return next(
@@ -143,7 +147,7 @@ const updateParticipant = catchAsync(async (req, res, next) => {
       'participants.$.permissions': permissions,
     },
     { new: true }
-  ).populate('participants.user', 'name avatar');
+  ).populate('owner participants.user', 'name avatar');
 
   if (!schedule) {
     return next(
@@ -174,7 +178,7 @@ const removeParticipant = catchAsync(async (req, res, next) => {
       },
     },
     { new: true }
-  ).populate('participants.user', 'name avatar');
+  ).populate('owner participants.user', 'name avatar');
 
   if (!schedule) {
     return next(

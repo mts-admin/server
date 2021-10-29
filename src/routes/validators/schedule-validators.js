@@ -3,7 +3,7 @@ const { SCHEDULE_PERMISSIONS } = require('../../constants/users');
 
 const createScheduleSchema = Joi.object({
   name: Joi.string().min(3).max(50).required(),
-  description: Joi.string().min(3).max(100).optional(),
+  description: Joi.string().max(100).optional().allow(''),
 });
 
 const getSchedulesQuerySchema = Joi.object({
@@ -14,7 +14,7 @@ const getSchedulesQuerySchema = Joi.object({
 
 const updateScheduleSchema = Joi.object({
   name: Joi.string().min(3).max(50).optional(),
-  description: Joi.string().min(3).max(100).optional(),
+  description: Joi.string().max(100).optional().allow(''),
 });
 
 const addParticipantSchema = Joi.object({
