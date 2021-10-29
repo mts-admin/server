@@ -9,6 +9,7 @@ const HTTP_CODE = require('../constants/http-codes');
 const { VISIT_RECURRING, VISIT_STATUS } = require('../constants/visits');
 const { generateRecurringVisitsData } = require('../utils/visits');
 const { getOne, updateOne, deleteOne } = require('./handler-factory');
+const { setTimeToDate } = require('../utils/general');
 
 const getScheduleVisits = catchAsync(async (req, res, next) => {
   const { scheduleId } = req.params;
@@ -104,10 +105,6 @@ const updateVisit = updateOne(Visit, {
   match: {
     _id: ['params', 'visitId'],
   },
-  populate: {
-    path: 'createdBy',
-    select: 'name avatar -_id',
-  },
 });
 
 const deleteVisit = deleteOne(Visit, {
@@ -117,17 +114,51 @@ const deleteVisit = deleteOne(Visit, {
 });
 
 const updateVisitsGroup = catchAsync(async (req, res, next) => {
-  const data = await Visit.updateMany(
-    { scheduleId: req.params.scheduleId, groupId: req.params.groupId },
-    req.body,
-    {
-      new: true,
-    }
-  ).populate('createdBy', 'name avatar -_id');
+  const visit = await Visit.findById(req.params.visitId);
 
-  if (data.n === 0) {
+  if (!visit) {
+    return next(createError(HTTP_CODE.NOT_FOUND, 'Visit not found'));
+  }
+
+  if (!visit.groupId) {
+    return next(
+      createError(HTTP_CODE.BAD_REQUEST, 'This visit is not recurring')
+    );
+  }
+
+  const data = await Visit.find({
+    scheduleId: req.params.scheduleId,
+    groupId: visit.groupId,
+    // update only future visits which are scheduled after current visit
+    startTime: {
+      $gte: moment(visit.startTime).format(),
+    },
+  })
+    .sort({ startTime: 1 })
+    .lean();
+
+  if (data.length === 0) {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Visits not found'));
   }
+
+  const bulk = data.map((item) => ({
+    updateOne: {
+      filter: { _id: item._id },
+      update: {
+        ...req.body,
+        // if we want to edit start or end time of all visits
+        // we only need to change the time of each visit. date must stay the same
+        ...(req.body.startTime && {
+          startTime: setTimeToDate(item.startTime, req.body.startTime),
+        }),
+        ...(req.body.endTime && {
+          endTime: setTimeToDate(item.endTime, req.body.endTime),
+        }),
+      },
+    },
+  }));
+
+  await Visit.bulkWrite(bulk);
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
@@ -136,9 +167,25 @@ const updateVisitsGroup = catchAsync(async (req, res, next) => {
 });
 
 const deleteVisitsGroup = catchAsync(async (req, res, next) => {
+  const visit = await Visit.findById(req.params.visitId);
+
+  if (!visit) {
+    return next(createError(HTTP_CODE.NOT_FOUND, 'Visit not found'));
+  }
+
+  if (!visit.groupId) {
+    return next(
+      createError(HTTP_CODE.BAD_REQUEST, 'This visit is not recurring')
+    );
+  }
+
   const data = await Visit.deleteMany({
     scheduleId: req.params.scheduleId,
-    groupId: req.params.groupId,
+    groupId: visit.groupId,
+    // delete only future visits which are scheduled after current visit
+    startTime: {
+      $gte: moment(visit.startTime).format(),
+    },
   });
 
   if (data.n === 0) {

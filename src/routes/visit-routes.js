@@ -42,7 +42,7 @@ router
   .delete(deleteVisit);
 
 router
-  .route('/group/:groupId')
+  .route('/:visitId/group')
   .patch(updateVisitValidator, updateVisitsGroup)
   .delete(deleteVisitsGroup);
 

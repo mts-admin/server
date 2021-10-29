@@ -102,6 +102,14 @@ const getFileResolution = (type) =>
     [R.T, () => [800, 800]],
   ])(type);
 
+const setTimeToDate = (date, time) =>
+  moment(date).set({
+    hour: moment(time).get('hour'),
+    minute: moment(time).get('minute'),
+    second: 0,
+    millisecond: 0,
+  });
+
 module.exports = {
   validateUserRole,
   hashString,
@@ -114,4 +122,5 @@ module.exports = {
   mapObjectByReq,
   getFileSize,
   getFileResolution,
+  setTimeToDate,
 };
