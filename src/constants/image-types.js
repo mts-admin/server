@@ -1,13 +1,13 @@
 // name of folder where images are saved
 const IMAGE_TYPE = {
-  USER: 'users',
-  BONUS: 'bonuses',
+  USER: 'USER',
+  BONUS: 'BONUS',
 };
 
 // name of field where image is stored in incoming request
 const IMAGE_FIELD_NAME = {
-  IMAGE: 'image',
-  AVATAR: 'avatar',
+  IMAGE: 'IMAGE',
+  AVATAR: 'AVATAR',
 };
 
 module.exports = { IMAGE_TYPE, IMAGE_FIELD_NAME };
