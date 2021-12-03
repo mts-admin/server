@@ -4,7 +4,6 @@ const router = require('express').Router({ mergeParams: true });
 const { protect } = require('../middlewares/auth');
 const {
   getTasks,
-  getTask,
   createTask,
   updateTask,
   deleteTask,
@@ -19,10 +18,6 @@ router.use(protect);
 
 router.route('/').get(getTasks).post(createTaskValidator, createTask);
 
-router
-  .route('/:id')
-  .get(getTask)
-  .patch(updateTaskValidator, updateTask)
-  .delete(deleteTask);
+router.route('/:id').patch(updateTaskValidator, updateTask).delete(deleteTask);
 
 module.exports = router;

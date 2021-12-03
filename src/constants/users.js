@@ -1,13 +1,13 @@
 const USER_STATUS = {
-  INVITED: 'invited',
-  ACTIVE: 'active',
-  DEACTIVATED: 'deactivated',
+  INVITED: 'INVITED',
+  ACTIVE: 'ACTIVE',
+  DEACTIVATED: 'DEACTIVATED',
 };
 
 const USER_ROLE = {
-  USER: 'user',
-  ADMIN: 'admin',
-  OWNER: 'owner',
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+  OWNER: 'OWNER',
 };
 
 const SCHEDULE_PERMISSIONS = {

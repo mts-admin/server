@@ -59,10 +59,17 @@ const getSprintsSortValue = (sort = '') =>
         },
       ],
     ],
-    [R.T, () => []],
+    [
+      R.T,
+      () => ({
+        $sort: { createdAt: -1 },
+      }),
+    ],
   ])(sort);
 
 const getSprintStatus = (newStatus, newDueDate) => {
+  if (!newStatus && !newDueDate) return null;
+
   if (newStatus) {
     return newStatus;
   }

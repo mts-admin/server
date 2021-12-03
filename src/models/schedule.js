@@ -12,7 +12,6 @@ const scheduleSchema = new Schema(
     },
     description: {
       type: String,
-      minlength: [3, 'Description must have more or equal then 3 characters'],
       maxlength: [
         100,
         'Description must have less or equal then 100 characters',
@@ -38,10 +37,7 @@ const scheduleSchema = new Schema(
         },
       },
     ],
-    createdAt: {
-      type: Date,
-      default: Date.now(),
-    },
+    createdAt: Date,
   },
   {
     toJSON: { virtuals: true },
@@ -55,7 +51,7 @@ scheduleSchema.virtual('visits', {
   localField: '_id',
 });
 
-scheduleSchema.index({ name: 1, description: 1 });
+scheduleSchema.index({ owner: 1, name: 1, description: 1 });
 
 const Schedule = model('Schedule', scheduleSchema);
 

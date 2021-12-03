@@ -7,7 +7,7 @@ const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const APIFeatures = require('../utils/api-features');
 const { getOne, createOne, updateOne } = require('./handler-factory');
-const { getPaginatedQueryCount } = require('../utils/general');
+const { USER_STATUS } = require('../constants/users');
 
 const getSchedule = getOne(Schedule, {
   match: {
@@ -27,12 +27,11 @@ const getMySchedules = catchAsync(async (req, res, next) => {
     req.query
   )
     .sort()
-    .limitFields()
-    .search('name', 'description')
+    .populate('owner participants.user', 'name avatar -_id')
     .paginate();
 
   const schedules = await query.query;
-  const totalCount = await getPaginatedQueryCount(query.query);
+  const totalCount = await query.countDocuments();
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
@@ -49,12 +48,11 @@ const getSharedSchedules = catchAsync(async (req, res, next) => {
     req.query
   )
     .sort()
-    .limitFields()
-    .search('name', 'description')
+    .populate('owner participants.user', 'name avatar -_id')
     .paginate();
 
   const schedules = await query.query;
-  const totalCount = await getPaginatedQueryCount(query.query);
+  const totalCount = await query.countDocuments();
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
@@ -64,7 +62,7 @@ const getSharedSchedules = catchAsync(async (req, res, next) => {
 });
 
 const createSchedule = createOne(Schedule, {
-  body: {
+  reqBody: {
     owner: ['user', 'id'],
   },
 });
@@ -72,6 +70,10 @@ const createSchedule = createOne(Schedule, {
 const updateSchedule = updateOne(Schedule, {
   match: {
     _id: ['params', 'id'],
+  },
+  populate: {
+    path: 'owner participants.user',
+    select: 'name avatar -_id',
   },
 });
 
@@ -91,7 +93,10 @@ const deleteSchedule = catchAsync(async (req, res, next) => {
 const addParticipant = catchAsync(async (req, res, next) => {
   const { participantEmail, permissions } = req.body;
 
-  const participant = await User.findOne({ email: participantEmail });
+  const participant = await User.findOne({
+    email: participantEmail,
+    status: USER_STATUS.ACTIVE,
+  });
 
   if (!participant) {
     return next(createError(HTTP_CODE.NOT_FOUND, 'User not found!'));
@@ -117,7 +122,7 @@ const addParticipant = catchAsync(async (req, res, next) => {
       },
     },
     { new: true }
-  ).populate('participants.user', 'name avatar');
+  ).populate('owner participants.user', 'name avatar');
 
   if (!schedule) {
     return next(
@@ -146,7 +151,7 @@ const updateParticipant = catchAsync(async (req, res, next) => {
       'participants.$.permissions': permissions,
     },
     { new: true }
-  ).populate('participants.user', 'name avatar');
+  ).populate('owner participants.user', 'name avatar');
 
   if (!schedule) {
     return next(
@@ -177,7 +182,7 @@ const removeParticipant = catchAsync(async (req, res, next) => {
       },
     },
     { new: true }
-  ).populate('participants.user', 'name avatar');
+  ).populate('owner participants.user', 'name avatar');
 
   if (!schedule) {
     return next(

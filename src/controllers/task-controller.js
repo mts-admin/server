@@ -1,18 +1,17 @@
+const createError = require('http-errors');
+
 const Task = require('../models/task');
+const Sprint = require('../models/sprint');
+const moment = require('../utils/moment');
 const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
-const {
-  getOne,
-  createOne,
-  updateOne,
-  deleteOne,
-} = require('./handler-factory');
+const { updateOne, deleteOne } = require('./handler-factory');
 
 const getTasks = catchAsync(async (req, res, next) => {
   const tasks = await Task.find({
     userId: req.user.id,
     sprintId: req.params.sprintId,
-  });
+  }).sort('createdAt');
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
@@ -20,18 +19,24 @@ const getTasks = catchAsync(async (req, res, next) => {
   });
 });
 
-const getTask = getOne(Task, {
-  match: {
-    _id: ['params', 'id'],
-    userId: ['user', 'id'],
-  },
-});
+const createTask = catchAsync(async (req, res, next) => {
+  const sprint = await Sprint.findById(req.params.sprintId);
 
-const createTask = createOne(Task, {
-  body: {
-    userId: ['user', 'id'],
-    sprintId: ['params', 'sprintId'],
-  },
+  if (!sprint) {
+    return next(createError(HTTP_CODE.NOT_FOUND, 'Sprint not found!'));
+  }
+
+  const task = await Task.create({
+    ...req.body,
+    userId: req.user.id,
+    sprintId: req.params.sprintId,
+    createdAt: moment().format(),
+  });
+
+  res.status(HTTP_CODE.SUCCESS_CREATED).json({
+    status: 'success',
+    data: task,
+  });
 });
 
 const updateTask = updateOne(Task, {
@@ -48,4 +53,4 @@ const deleteTask = deleteOne(Task, {
   },
 });
 
-module.exports = { getTasks, getTask, createTask, updateTask, deleteTask };
+module.exports = { getTasks, createTask, updateTask, deleteTask };

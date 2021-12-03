@@ -2,7 +2,18 @@ const { celebrate, Joi, Segments } = require('celebrate');
 const { USER_ROLE, USER_STATUS } = require('../../constants/users');
 
 const getUsersListSchema = Joi.object({
-  search: Joi.string().optional(),
+  page: Joi.number().integer().optional(),
+  limit: Joi.number().integer().optional(),
+  status: Joi.string()
+    .valid(...Object.values(USER_STATUS))
+    .optional(),
+  role: Joi.string()
+    .valid(...Object.values(USER_ROLE))
+    .optional(),
+  search: Joi.string().optional().allow(''),
+  sort: Joi.string()
+    .valid('name', '-name', 'createdAt', '-createdAt')
+    .optional(),
 });
 
 const updateUserSchema = Joi.object({
@@ -12,21 +23,10 @@ const updateUserSchema = Joi.object({
   role: Joi.string().valid(USER_ROLE.USER, USER_ROLE.ADMIN).optional(),
 });
 
-const updateMeSchema = Joi.object({
-  name: Joi.string().optional(),
-  email: Joi.string().email().optional(),
-  avatar: Joi.string().optional(),
-});
-
-const updateMyEmailSchema = Joi.object({
+const inviteUserSchema = Joi.object({
+  name: Joi.string().max(50).required(),
+  role: Joi.string().valid(USER_ROLE.USER, USER_ROLE.ADMIN).required(),
   email: Joi.string().email().required(),
-  password: Joi.string().min(8).required(),
-});
-
-const updateMyPasswordSchema = Joi.object({
-  passwordCurrent: Joi.string().min(8).required(),
-  password: Joi.string().min(8).required(),
-  passwordConfirm: Joi.string().min(8).required(),
 });
 
 const getUsersListValidator = celebrate({
@@ -37,22 +37,12 @@ const updateUserValidator = celebrate({
   [Segments.BODY]: updateUserSchema,
 });
 
-const updateMeValidator = celebrate({
-  [Segments.BODY]: updateMeSchema,
-});
-
-const updateMyEmailValidator = celebrate({
-  [Segments.BODY]: updateMyEmailSchema,
-});
-
-const updateMyPasswordValidator = celebrate({
-  [Segments.BODY]: updateMyPasswordSchema,
+const inviteUserValidator = celebrate({
+  [Segments.BODY]: inviteUserSchema,
 });
 
 module.exports = {
   getUsersListValidator,
   updateUserValidator,
-  updateMeValidator,
-  updateMyEmailValidator,
-  updateMyPasswordValidator,
+  inviteUserValidator,
 };

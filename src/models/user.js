@@ -4,11 +4,13 @@ const bcrypt = require('bcryptjs');
 
 const { USER_STATUS, USER_ROLE } = require('../constants/users');
 const { generateRandomTokens } = require('../utils/general');
+const { ACTIVITY_STATUS } = require('../constants/activity');
 
 const userSchema = new Schema(
   {
     name: {
       type: String,
+      maxlength: 50,
       required: [true, 'Please tell us your name!'],
     },
     email: {
@@ -28,10 +30,7 @@ const userSchema = new Schema(
       enum: Object.values(USER_ROLE),
       default: USER_ROLE.USER,
     },
-    avatar: {
-      type: String,
-      default: 'default-avatar.png',
-    },
+    avatar: String,
     invitedBy: {
       type: Schema.ObjectId,
       ref: 'User',
@@ -60,6 +59,7 @@ const userSchema = new Schema(
       passwordResetToken: String,
       passwordResetExpires: Date,
     },
+    createdAt: Date,
   },
   {
     toJSON: { virtuals: true },
@@ -67,7 +67,7 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.index({ name: 1 });
+userSchema.index({ name: 1, status: 1 });
 
 userSchema.virtual('newBonusesCount', {
   ref: 'Bonus',
@@ -86,6 +86,7 @@ userSchema.virtual('newActivitiesCount', {
   count: true,
   match: {
     viewed: false,
+    status: ACTIVITY_STATUS.ACTIVE,
   },
 });
 

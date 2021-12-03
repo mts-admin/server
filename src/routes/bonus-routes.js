@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 const { protect, restrictTo } = require('../middlewares/auth');
+const { uploadSingleImage } = require('../middlewares/upload');
 const {
   getMyBonuses,
   getUserBonuses,
@@ -15,6 +16,7 @@ const {
   updateBonusValidator,
 } = require('./validators/bonus-validator');
 const { USER_ROLE } = require('../constants/users');
+const { IMAGE_FIELD_NAME } = require('../constants/image-types');
 
 // Protect all routes after this middleware
 router.use(protect);
@@ -25,10 +27,19 @@ router.get('/:id', getBonus);
 router.use(restrictTo(USER_ROLE.ADMIN, USER_ROLE.OWNER));
 
 router.get('/user/:userId', getBonusesListValidator, getUserBonuses);
-router.post('/', createBonusValidator, createBonus);
+router.post(
+  '/',
+  uploadSingleImage(IMAGE_FIELD_NAME.IMAGE),
+  createBonusValidator,
+  createBonus
+);
 router
   .route('/:id')
-  .patch(updateBonusValidator, updateBonus)
+  .patch(
+    uploadSingleImage(IMAGE_FIELD_NAME.IMAGE),
+    updateBonusValidator,
+    updateBonus
+  )
   .delete(deleteBonus);
 
 module.exports = router;

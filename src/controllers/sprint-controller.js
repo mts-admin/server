@@ -93,7 +93,7 @@ const getSprint = getOne(Sprint, {
 });
 
 const createSprint = createOne(Sprint, {
-  body: {
+  reqBody: {
     userId: ['user', 'id'],
   },
 });
@@ -122,6 +122,13 @@ const updateSprint = catchAsync(async (req, res, next) => {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Sprint not found!'));
   }
 
+  if (body.status === SPRINT_STATUS.DONE) {
+    await Task.updateMany(
+      { sprintId: req.params.id },
+      { status: TASK_STATUS.DONE }
+    );
+  }
+
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
     data: sprint,
@@ -147,14 +154,18 @@ const completeSprint = catchAsync(async (req, res, next) => {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Sprint not found!'));
   }
 
-  await Promise.all([
+  const [updatedSprint] = await Promise.all([
+    Sprint.findByIdAndUpdate(
+      req.params.id,
+      { status: SPRINT_STATUS.DONE },
+      { new: true }
+    ),
     Task.updateMany({ sprintId: req.params.id }, { status: TASK_STATUS.DONE }),
-    Sprint.findByIdAndUpdate(req.params.id, { status: SPRINT_STATUS.DONE }),
   ]);
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
-    message: 'Sprint has been completed successfully',
+    data: updatedSprint,
   });
 });
 

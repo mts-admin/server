@@ -1,11 +1,13 @@
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
+const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 const createError = require('http-errors');
 // const xss = require('xss-clean');
 
@@ -19,6 +21,10 @@ const app = express();
 app.set('view engine', 'pug');
 
 // 1) GLOBAL MIDDLEWARES
+// Implement CORS
+app.use(cors());
+app.options('*', cors());
+
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -50,11 +56,10 @@ app.use(mongoSanitize());
 // app.use(xss());
 
 // Prevent parameter pollution
-app.use(
-  hpp({
-    // whitelist: [],
-  })
-);
+app.use(hpp());
+
+// Compress all responses
+app.use(compression());
 
 // 2) ROUTES
 app.use('/api/v1', router);

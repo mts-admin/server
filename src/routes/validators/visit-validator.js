@@ -10,14 +10,14 @@ const getScheduleVisitsSchema = Joi.object({
 
 const createOneOffVisitSchema = Joi.object({
   title: Joi.string().max(100).required(),
-  notes: Joi.string().optional(),
+  notes: Joi.string().optional().allow(''),
   startTime: Joi.date().iso().required(),
   endTime: Joi.date().iso().min(Joi.ref('startTime')).required(),
 });
 
 const createRecurringVisitsSchema = Joi.object({
   title: Joi.string().max(100).required(),
-  notes: Joi.string().optional(),
+  notes: Joi.string().optional().allow(''),
   startTime: Joi.date().iso().required(),
   endTime: Joi.date().iso().min(Joi.ref('startTime')).required(),
   fromDate: Joi.date().iso().required(),
@@ -36,11 +36,11 @@ const createRecurringVisitsSchema = Joi.object({
 
 const updateVisitSchema = Joi.object({
   title: Joi.string().max(100).optional(),
-  notes: Joi.string().optional(),
+  notes: Joi.string().optional().allow(''),
   startTime: Joi.date().iso().optional(),
   endTime: Joi.date().iso().min(Joi.ref('startTime')).optional(),
   status: Joi.string()
-    .valid(VISIT_STATUS.ACTIVE, VISIT_STATUS.CANCELED)
+    .valid(...Object.values(VISIT_STATUS))
     .optional(),
 });
 

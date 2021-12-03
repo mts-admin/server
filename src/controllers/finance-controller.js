@@ -9,7 +9,7 @@ const {
   deleteOne,
 } = require('./handler-factory');
 const { FINANCE_TYPE } = require('../constants/finance');
-const { getDateMatch, getPaginatedQueryCount } = require('../utils/general');
+const { getDateMatch } = require('../utils/general');
 
 const getFinanceList = catchAsync(async (req, res, next) => {
   const query = new APIFeatures(
@@ -18,13 +18,13 @@ const getFinanceList = catchAsync(async (req, res, next) => {
     }),
     req.query
   )
-    .sort('date')
     .search('title', 'description')
+    .sort('date')
     .dateFilter('date')
     .paginate();
 
   const finances = await query.query;
-  const totalCount = await getPaginatedQueryCount(query.query);
+  const totalCount = await query.countDocuments();
 
   res.status(HTTP_CODE.SUCCESS).json({
     status: 'success',
@@ -41,7 +41,7 @@ const getFinanceItem = getOne(Finance, {
 });
 
 const createFinanceItem = createOne(Finance, {
-  body: {
+  reqBody: {
     userId: ['user', 'id'],
   },
 });
@@ -72,7 +72,7 @@ const getFinanceStatisticByDate = catchAsync(async (req, res, next) => {
     },
     {
       $group: {
-        _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+        _id: { $dateToString: { format: '%d-%m-%Y', date: '$date' } },
         income: {
           $sum: {
             $cond: {

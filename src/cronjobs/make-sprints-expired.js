@@ -19,7 +19,7 @@ const makeSprintsExpired = async (sprints) => {
 module.exports = async () => {
   await Sprint.find({
     dueDate: {
-      $lt: moment().toISOString(),
+      $lt: moment().format(),
     },
     status: SPRINT_STATUS.IN_PROGRESS,
   }).then(makeSprintsExpired);

@@ -19,16 +19,23 @@ const getSprintsSchema = Joi.object({
 
 const createSprintSchema = Joi.object({
   title: Joi.string().required(),
-  description: Joi.string().optional(),
+  description: Joi.string().optional().allow(''),
   priority: Joi.string()
     .valid(...Object.values(SPRINT_PRIORITY))
-    .optional(),
-  dueDate: Joi.date().iso().optional(),
+    .required(),
+  dueDate: Joi.date().iso().required(),
+  status: Joi.string()
+    .valid(
+      SPRINT_STATUS.IN_PROGRESS,
+      SPRINT_STATUS.DONE,
+      SPRINT_STATUS.ARCHIVED
+    )
+    .default(SPRINT_STATUS.IN_PROGRESS),
 });
 
 const updateSprintSchema = Joi.object({
   title: Joi.string().optional(),
-  description: Joi.string().optional(),
+  description: Joi.string().optional().allow(''),
   priority: Joi.string()
     .valid(...Object.values(SPRINT_PRIORITY))
     .optional(),

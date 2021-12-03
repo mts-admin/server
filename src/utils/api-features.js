@@ -11,6 +11,7 @@ class APIFeatures {
     this.queryString = queryString;
   }
 
+  // filter by fields in query
   filter() {
     const queryObj = R.omit(EXCLUDES_FIELDS, this.queryString);
 
@@ -46,12 +47,8 @@ class APIFeatures {
     return this;
   }
 
-  paginate() {
-    const page = this.queryString.page * 1 || 1;
-    const limit = this.queryString.limit * 1 || 9;
-    const skip = (page - 1) * limit;
-
-    this.query = this.query.skip(skip).limit(limit);
+  select(fields) {
+    this.query = this.query.select(fields.join(' '));
 
     return this;
   }
@@ -67,14 +64,43 @@ class APIFeatures {
   }
 
   dateFilter(fieldName) {
-    const {
-      start = moment().startOf('month').format(),
-      end = moment().endOf('month').format(),
-    } = this.queryString;
+    const { start, end } = this.queryString;
 
-    this.query = this.query.find(getDateMatch(start, end, fieldName));
+    if (!start && !end) {
+      this.query = this.query.find(
+        getDateMatch(
+          moment().startOf('month').format(),
+          moment().endOf('month').format(),
+          fieldName
+        )
+      );
+    } else {
+      this.query = this.query.find(getDateMatch(start, end, fieldName));
+    }
 
     return this;
+  }
+
+  paginate() {
+    if (this.queryString.page === -1) return this;
+
+    const page = this.queryString.page * 1 || 1;
+    const limit = this.queryString.limit * 1 || 9;
+    const skip = (page - 1) * limit;
+
+    this.query = this.query.skip(skip).limit(limit);
+
+    return this;
+  }
+
+  populate(path, select) {
+    this.query = this.query.populate(path, select);
+
+    return this;
+  }
+
+  countDocuments() {
+    return this.query.skip(0).limit(Infinity).countDocuments();
   }
 }
 

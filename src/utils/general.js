@@ -4,6 +4,7 @@ const escapeStringRegexp = require('escape-string-regexp');
 
 const moment = require('./moment');
 const { USER_ROLE } = require('../constants/users');
+const { IMAGE_FIELD_NAME, IMAGE_TYPE } = require('../constants/image-types');
 
 const validateUserRole = (role) => {
   const allowedRoles = [USER_ROLE.USER, USER_ROLE.ADMIN];
@@ -39,14 +40,16 @@ const getSearchMatch = (searchPhrase, fields) => {
   return {};
 };
 
-const getDateMatch = (startDate, endDate, fieldName) =>
-  startDate &&
-  endDate && {
+const getDateMatch = (startDate, endDate, fieldName) => {
+  if (!startDate && !endDate) return {};
+
+  return {
     [fieldName]: {
-      $gte: startDate,
-      $lte: endDate,
+      ...(startDate && { $gte: startDate }),
+      ...(endDate && { $lte: endDate }),
     },
   };
+};
 
 const getDateInterval = (startDate, endDate) => {
   const rangeOfDates = moment.range(startDate, endDate);
@@ -58,7 +61,17 @@ const getDateInterval = (startDate, endDate) => {
 };
 
 const getDateDiff = (start, end) => {
-  const diff = moment(end).diff(moment(start));
+  const startDate = moment().set({
+    hour: moment(start).get('hour'),
+    minute: moment(start).get('minute'),
+    millisecond: 0,
+  });
+  const endDate = moment().set({
+    hour: moment(end).get('hour'),
+    minute: moment(end).get('minute'),
+    millisecond: 0,
+  });
+  const diff = endDate.diff(startDate);
 
   const seconds = Math.abs(diff) / 1000;
   const hours = Math.floor(seconds / 3600);
@@ -74,9 +87,30 @@ const capitalizeFirstLetter = (string) =>
 // { match: { _id: req.params.id } }
 const mapObjectByReq = (req, obj) => R.map((path) => R.path(path, req), obj);
 
-// get the count of all documents by $match filter but without pagination
-const getPaginatedQueryCount = (query) =>
-  query.skip(0).limit(Infinity).countDocuments();
+const getFileSize = (fileName) => {
+  const ONE_MB_IN_BYTES = 1048576;
+
+  return R.cond([
+    [R.equals(IMAGE_FIELD_NAME.IMAGE), () => ONE_MB_IN_BYTES * 1],
+    [R.equals(IMAGE_FIELD_NAME.AVATAR), () => ONE_MB_IN_BYTES * 5],
+    [R.T, () => ONE_MB_IN_BYTES],
+  ])(fileName);
+};
+
+const getFileResolution = (type) =>
+  R.cond([
+    [R.equals(IMAGE_TYPE.BONUS), () => [1200, 1200]],
+    [R.equals(IMAGE_TYPE.USER), () => [800, 800]],
+    [R.T, () => [800, 800]],
+  ])(type);
+
+const setTimeToDate = (date, time) =>
+  moment(date).set({
+    hour: moment(time).get('hour'),
+    minute: moment(time).get('minute'),
+    second: 0,
+    millisecond: 0,
+  });
 
 module.exports = {
   validateUserRole,
@@ -88,5 +122,7 @@ module.exports = {
   getDateInterval,
   capitalizeFirstLetter,
   mapObjectByReq,
-  getPaginatedQueryCount,
+  getFileSize,
+  getFileResolution,
+  setTimeToDate,
 };

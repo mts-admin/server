@@ -6,8 +6,8 @@ const taskSchema = new Schema({
   title: {
     type: String,
     required: true,
+    maxlength: 100,
   },
-  notes: String,
   status: {
     type: String,
     required: true,
@@ -24,11 +24,10 @@ const taskSchema = new Schema({
     ref: 'User',
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
+  createdAt: Date,
 });
+
+taskSchema.index({ userId: 1, sprintId: 1 });
 
 const Task = model('Task', taskSchema);
 

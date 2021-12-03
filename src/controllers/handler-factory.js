@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 
+const moment = require('../utils/moment');
 const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const { mapObjectByReq } = require('../utils/general');
@@ -20,11 +21,13 @@ const getOne = (Model, { match, populate }) =>
     });
   });
 
-const createOne = (Model, { body }) =>
+const createOne = (Model, { reqBody, restBody }) =>
   catchAsync(async (req, res, next) => {
     const bodyOptions = {
       ...req.body,
-      ...mapObjectByReq(req, body),
+      ...mapObjectByReq(req, reqBody),
+      ...restBody,
+      createdAt: moment().format(),
     };
 
     const doc = await Model.create(bodyOptions);
