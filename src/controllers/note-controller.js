@@ -16,9 +16,9 @@ const getMyNotes = catchAsync(async (req, res, next) => {
     }),
     req.query
   )
-    .sort()
     .filter()
     .search('title', 'content', 'tags')
+    .sort()
     .paginate();
 
   const notes = await query.query;
@@ -39,8 +39,11 @@ const getNote = getOne(Note, {
 });
 
 const createNote = createOne(Note, {
-  body: {
+  reqBody: {
     userId: ['user', 'id'],
+  },
+  restBody: {
+    favorite: false,
   },
 });
 

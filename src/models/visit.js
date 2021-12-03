@@ -47,10 +47,7 @@ const visitSchema = new Schema(
       ref: 'User',
       required: true,
     },
-    createdAt: {
-      type: Date,
-      default: Date.now(),
-    },
+    createdAt: Date,
   },
   {
     toJSON: { virtuals: true },

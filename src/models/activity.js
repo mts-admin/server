@@ -5,6 +5,7 @@ const activitySchema = new Schema({
   content: {
     type: String,
     required: true,
+    maxlength: 500,
   },
   viewed: {
     type: Boolean,
@@ -20,10 +21,8 @@ const activitySchema = new Schema({
     ref: 'User',
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
+  createdAt: Date,
+  becameActiveAt: Date,
   createdBy: {
     type: Schema.ObjectId,
     ref: 'User',

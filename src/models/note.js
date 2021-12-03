@@ -9,7 +9,10 @@ const noteSchema = new Schema({
     type: String,
     required: true,
   },
-  tags: [String],
+  tags: {
+    type: [String],
+    validate: [(value) => value.length <= 5, '{PATH} exceeds the limit of 5'],
+  },
   favorite: {
     type: Boolean,
     default: false,
@@ -19,10 +22,7 @@ const noteSchema = new Schema({
     ref: 'User',
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
+  createdAt: Date,
 });
 
 noteSchema.index({ userId: 1, title: 1, content: 1, tags: 1 });

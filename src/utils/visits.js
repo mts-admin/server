@@ -45,6 +45,7 @@ const generateRecurringVisitsData = ({
         createdBy,
         startTime: startDate,
         endTime: endDate,
+        createdAt: moment().format(),
         ...(recurring === VISIT_RECURRING.WEEKLY && { daysOfWeek }),
       });
     })

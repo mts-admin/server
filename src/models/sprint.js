@@ -11,24 +11,23 @@ const sprintSchema = new Schema({
   status: {
     type: String,
     required: true,
-    default: SPRINT_STATUS.IN_PROGRESS,
     enum: Object.values(SPRINT_STATUS),
   },
   priority: {
     type: String,
-    default: SPRINT_PRIORITY.MEDIUM,
+    required: true,
     enum: Object.values(SPRINT_PRIORITY),
   },
-  dueDate: Date,
+  dueDate: {
+    type: Date,
+    required: true,
+  },
   userId: {
     type: Schema.ObjectId,
     ref: 'User',
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
+  createdAt: Date,
 });
 
 sprintSchema.index({ userId: 1, status: 1 });

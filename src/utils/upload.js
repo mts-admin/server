@@ -10,8 +10,8 @@ const uploadSingleImage = async ({ file, type, name }) => {
   const slugName = slugify(name, { lower: true });
 
   const fileName = `${slugName}-${file.fieldname}-${Date.now()}.jpeg`;
-  const filePath = `img/${type}/${fileName}`;
-  const rootPath = `${__dirname}/../public/${filePath}`;
+  const filePath = `/img/${type}/${fileName}`;
+  const rootPath = `${__dirname}/../public${filePath}`;
 
   try {
     await sharp(file.buffer)

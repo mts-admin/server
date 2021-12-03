@@ -18,15 +18,13 @@ const financeSchema = new Schema({
     required: true,
     enum: Object.values(FINANCE_TYPE),
   },
-  date: {
-    type: Date,
-    default: Date.now(),
-  },
+  date: Date,
   userId: {
     type: Schema.ObjectId,
     ref: 'User',
     required: true,
   },
+  createdAt: Date,
 });
 
 financeSchema.index({ userId: 1, title: 1, description: 1, date: 1 });

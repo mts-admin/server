@@ -5,6 +5,7 @@ const User = require('../models/user');
 const Bonus = require('../models/bonus');
 const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
+const moment = require('../utils/moment');
 const {
   uploadSingleImage,
   updateSingleImage,
@@ -21,7 +22,9 @@ const getMyBonuses = catchAsync(async (req, res, next) => {
     req.query
   )
     .search('title', 'description')
+    .sort()
     .filter()
+    .populate('createdBy', 'name avatar -_id')
     .paginate();
 
   const bonuses = await query.query;
@@ -42,7 +45,8 @@ const getUserBonuses = catchAsync(async (req, res, next) => {
     req.query
   )
     .search('title', 'description')
-    .filter()
+    .sort()
+    .populate('createdBy', 'name avatar -_id')
     .paginate();
 
   const bonuses = await query.query;
@@ -56,15 +60,18 @@ const getUserBonuses = catchAsync(async (req, res, next) => {
 });
 
 const getBonus = catchAsync(async (req, res, next) => {
-  const bonus = await Bonus.findById(req.params.id, (err, item) => {
-    if (item && !item.viewed && req.user._id.equals(item.userId)) {
-      item.viewed = true;
-      item.save();
-    }
-  });
+  const bonus = await Bonus.findById(req.params.id).populate(
+    'createdBy',
+    'name avatar -_id'
+  );
 
   if (!bonus) {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Bonus not found!'));
+  }
+
+  if (!bonus.viewed && req.user._id.equals(bonus.userId)) {
+    bonus.viewed = true;
+    await bonus.save();
   }
 
   res.status(HTTP_CODE.SUCCESS).json({
@@ -82,6 +89,7 @@ const createBonus = catchAsync(async (req, res, next) => {
 
   const data = {
     ...req.body,
+    createdAt: moment().format(),
     createdBy: req.user._id,
   };
 
@@ -110,7 +118,7 @@ const updateBonus = catchAsync(async (req, res, next) => {
     {
       new: true,
     }
-  );
+  ).populate('createdBy', 'name avatar -_id');
 
   if (!bonus) {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Bonus not found!'));

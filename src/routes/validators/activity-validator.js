@@ -4,19 +4,15 @@ const { ACTIVITY_STATUS } = require('../../constants/activity');
 const getActivitiesSchema = Joi.object({
   page: Joi.number().integer().optional(),
   limit: Joi.number().integer().optional(),
-  search: Joi.string().optional(),
+  search: Joi.string().optional().allow(''),
   viewed: Joi.boolean().optional(),
   status: Joi.string()
-    .valid(
-      ACTIVITY_STATUS.ACTIVE,
-      ACTIVITY_STATUS.DONE,
-      ACTIVITY_STATUS.ARCHIVED
-    )
+    .valid(...Object.values(ACTIVITY_STATUS))
     .optional(),
 });
 
 const createActivitySchema = Joi.object({
-  content: Joi.string().required(),
+  content: Joi.string().max(500).required(),
   userId: Joi.string().required(),
   status: Joi.string()
     .valid(ACTIVITY_STATUS.CREATED, ACTIVITY_STATUS.ACTIVE)
@@ -25,7 +21,7 @@ const createActivitySchema = Joi.object({
 });
 
 const updateActivitySchema = Joi.object({
-  content: Joi.string().optional(),
+  content: Joi.string().max(500).optional(),
   status: Joi.string()
     .valid(...Object.values(ACTIVITY_STATUS))
     .optional(),
@@ -39,6 +35,7 @@ const changeActivityStatusSchema = Joi.object({
       ACTIVITY_STATUS.ARCHIVED
     )
     .required(),
+  viewed: Joi.boolean().optional().default(true),
 });
 
 const getActivitiesValidator = celebrate({

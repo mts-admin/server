@@ -7,48 +7,10 @@ const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const { createSendToken } = require('../utils/auth');
 const Email = require('../utils/email');
-const {
-  hashString,
-  validateUserRole,
-  generateRandomTokens,
-} = require('../utils/general');
+const { hashString } = require('../utils/general');
 const { updateSingleImage, removeSingleImage } = require('../utils/upload');
 const { USER_STATUS } = require('../constants/users');
 const { IMAGE_TYPE } = require('../constants/image-types');
-
-const inviteUser = catchAsync(async (req, res, next) => {
-  const [invitationToken, invitationTokenEncrypted] = generateRandomTokens();
-
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    role: validateUserRole(req.body.role),
-    invitedBy: req.user._id,
-    techData: {
-      invitationToken: invitationTokenEncrypted,
-    },
-  });
-
-  try {
-    const registrationUrl = `${config.clientUrl}/signup-by-invitation/${invitationToken}`;
-
-    await new Email(newUser, registrationUrl).sendInvitation();
-
-    res.status(HTTP_CODE.SUCCESS_CREATED).json({
-      status: 'success',
-      message: 'Invitation has been sent to email!',
-    });
-  } catch (err) {
-    await User.findByIdAndDelete(newUser._id);
-
-    return next(
-      createError(
-        HTTP_CODE.SERVER_ERROR,
-        'There was an error sending the email. Try again later!'
-      )
-    );
-  }
-});
 
 const getInvitationData = catchAsync(async (req, res, next) => {
   const hashedToken = hashString(req.params.token);
@@ -79,7 +41,7 @@ const signUpByInvitation = catchAsync(async (req, res, next) => {
 
   const user = await User.findOne({
     'techData.invitationToken': hashedToken,
-  });
+  }).populate('newBonusesCount newActivitiesCount');
 
   if (!user) {
     return next(
@@ -99,35 +61,15 @@ const signUpByInvitation = catchAsync(async (req, res, next) => {
   createSendToken(user, HTTP_CODE.SUCCESS, res);
 });
 
-const cancelInvitation = catchAsync(async (req, res, next) => {
-  const hashedToken = hashString(req.params.token);
-
-  const user = await User.findOneAndDelete({
-    'techData.invitationToken': hashedToken,
-  });
-
-  if (!user) {
-    return next(
-      createError(
-        HTTP_CODE.NOT_FOUND,
-        'This invitation has been already canceled'
-      )
-    );
-  }
-
-  res.status(HTTP_CODE.SUCCESS_DELETED).json({
-    status: 'success',
-    message: 'Invitation has been canceled successfully!',
-  });
-});
-
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({
     email,
     status: USER_STATUS.ACTIVE,
-  }).select('+password');
+  })
+    .select('+password')
+    .populate('newBonusesCount newActivitiesCount');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(
@@ -165,7 +107,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    const resetURL = `${config.clientUrl}/reset-password/${resetToken}`;
+    const resetURL = `${config.clientUrl}/auth/reset-password/${resetToken}`;
 
     await new Email(user, resetURL).sendPasswordReset();
 
@@ -193,7 +135,8 @@ const resetPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({
     'techData.passwordResetToken': hashedToken,
     'techData.passwordResetExpires': { $gt: Date.now() },
-  });
+    status: USER_STATUS.ACTIVE,
+  }).populate('newBonusesCount newActivitiesCount');
 
   if (!user) {
     return next(
@@ -306,12 +249,10 @@ module.exports = {
   logout,
   getMe,
   updateMe,
-  inviteUser,
   updateMyEmail,
   resetPassword,
   forgotPassword,
   updateMyPassword,
-  cancelInvitation,
   getInvitationData,
   signUpByInvitation,
 };
