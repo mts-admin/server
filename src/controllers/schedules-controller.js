@@ -7,6 +7,7 @@ const catchAsync = require('../utils/catch-async');
 const HTTP_CODE = require('../constants/http-codes');
 const APIFeatures = require('../utils/api-features');
 const { getOne, createOne, updateOne } = require('./handler-factory');
+const { USER_STATUS } = require('../constants/users');
 
 const getSchedule = getOne(Schedule, {
   match: {
@@ -61,7 +62,7 @@ const getSharedSchedules = catchAsync(async (req, res, next) => {
 });
 
 const createSchedule = createOne(Schedule, {
-  body: {
+  reqBody: {
     owner: ['user', 'id'],
   },
 });
@@ -92,7 +93,10 @@ const deleteSchedule = catchAsync(async (req, res, next) => {
 const addParticipant = catchAsync(async (req, res, next) => {
   const { participantEmail, permissions } = req.body;
 
-  const participant = await User.findOne({ email: participantEmail });
+  const participant = await User.findOne({
+    email: participantEmail,
+    status: USER_STATUS.ACTIVE,
+  });
 
   if (!participant) {
     return next(createError(HTTP_CODE.NOT_FOUND, 'User not found!'));

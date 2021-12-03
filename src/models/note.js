@@ -9,7 +9,10 @@ const noteSchema = new Schema({
     type: String,
     required: true,
   },
-  tags: [String],
+  tags: {
+    type: [String],
+    validate: [(value) => value.length <= 5, '{PATH} exceeds the limit of 5'],
+  },
   favorite: {
     type: Boolean,
     default: false,

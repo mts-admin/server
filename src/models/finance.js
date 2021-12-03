@@ -24,6 +24,7 @@ const financeSchema = new Schema({
     ref: 'User',
     required: true,
   },
+  createdAt: Date,
 });
 
 financeSchema.index({ userId: 1, title: 1, description: 1, date: 1 });

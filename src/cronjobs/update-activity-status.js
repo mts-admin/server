@@ -1,5 +1,6 @@
 const Activity = require('../models/activity');
 const User = require('../models/user');
+const moment = require('../utils/moment');
 const { ACTIVITY_STATUS } = require('../constants/activity');
 
 const changeActivityStatus = async (users) => {
@@ -22,6 +23,7 @@ const changeActivityStatus = async (users) => {
         if (activity) {
           await Activity.findByIdAndUpdate(activity._id, {
             status: ACTIVITY_STATUS.ACTIVE,
+            becameActiveAt: moment().format(),
           });
         }
       })

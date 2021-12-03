@@ -7,7 +7,6 @@ const createScheduleSchema = Joi.object({
 });
 
 const getSchedulesQuerySchema = Joi.object({
-  sort: Joi.string().optional(),
   page: Joi.number().integer().optional(),
   limit: Joi.number().integer().optional(),
 });

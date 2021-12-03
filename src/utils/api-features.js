@@ -64,17 +64,26 @@ class APIFeatures {
   }
 
   dateFilter(fieldName) {
-    const {
-      start = moment().startOf('month').format(),
-      end = moment().endOf('month').format(),
-    } = this.queryString;
+    const { start, end } = this.queryString;
 
-    this.query = this.query.find(getDateMatch(start, end, fieldName));
+    if (!start && !end) {
+      this.query = this.query.find(
+        getDateMatch(
+          moment().startOf('month').format(),
+          moment().endOf('month').format(),
+          fieldName
+        )
+      );
+    } else {
+      this.query = this.query.find(getDateMatch(start, end, fieldName));
+    }
 
     return this;
   }
 
   paginate() {
+    if (this.queryString.page === -1) return this;
+
     const page = this.queryString.page * 1 || 1;
     const limit = this.queryString.limit * 1 || 9;
     const skip = (page - 1) * limit;

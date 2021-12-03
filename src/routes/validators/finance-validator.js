@@ -3,17 +3,17 @@ const { celebrate, Joi, Segments } = require('celebrate');
 const { FINANCE_TYPE } = require('../../constants/finance');
 
 const getFinanceListSchema = Joi.object({
-  sort: Joi.string().optional(),
+  sort: Joi.string().valid('date', '-date', 'total', '-total').optional(),
   page: Joi.number().integer().optional(),
   limit: Joi.number().integer().optional(),
-  search: Joi.string().optional(),
+  search: Joi.string().optional().allow(''),
   start: Joi.date().iso().optional(),
   end: Joi.date().iso().min(Joi.ref('start')).optional(),
 });
 
 const createFinanceItemSchema = Joi.object({
   title: Joi.string().required(),
-  description: Joi.string().optional(),
+  description: Joi.string().optional().allow(''),
   total: Joi.number().min(0).required(),
   type: Joi.string()
     .valid(FINANCE_TYPE.INCOME, FINANCE_TYPE.OUTCOME)
@@ -23,7 +23,7 @@ const createFinanceItemSchema = Joi.object({
 
 const updateFinanceItemSchema = Joi.object({
   title: Joi.string().optional(),
-  description: Joi.string().optional(),
+  description: Joi.string().optional().allow(''),
   total: Joi.number().min(0).optional(),
   type: Joi.string()
     .valid(FINANCE_TYPE.INCOME, FINANCE_TYPE.OUTCOME)

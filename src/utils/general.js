@@ -40,14 +40,16 @@ const getSearchMatch = (searchPhrase, fields) => {
   return {};
 };
 
-const getDateMatch = (startDate, endDate, fieldName) =>
-  startDate &&
-  endDate && {
+const getDateMatch = (startDate, endDate, fieldName) => {
+  if (!startDate && !endDate) return {};
+
+  return {
     [fieldName]: {
-      $gte: startDate,
-      $lte: endDate,
+      ...(startDate && { $gte: startDate }),
+      ...(endDate && { $lte: endDate }),
     },
   };
+};
 
 const getDateInterval = (startDate, endDate) => {
   const rangeOfDates = moment.range(startDate, endDate);
@@ -89,7 +91,7 @@ const getFileSize = (fileName) => {
   const ONE_MB_IN_BYTES = 1048576;
 
   return R.cond([
-    [R.equals(IMAGE_FIELD_NAME.IMAGE), () => ONE_MB_IN_BYTES * 2],
+    [R.equals(IMAGE_FIELD_NAME.IMAGE), () => ONE_MB_IN_BYTES * 1],
     [R.equals(IMAGE_FIELD_NAME.AVATAR), () => ONE_MB_IN_BYTES * 5],
     [R.T, () => ONE_MB_IN_BYTES],
   ])(fileName);

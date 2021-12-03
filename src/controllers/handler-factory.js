@@ -21,12 +21,13 @@ const getOne = (Model, { match, populate }) =>
     });
   });
 
-const createOne = (Model, { body }) =>
+const createOne = (Model, { reqBody, restBody }) =>
   catchAsync(async (req, res, next) => {
     const bodyOptions = {
       ...req.body,
+      ...mapObjectByReq(req, reqBody),
+      ...restBody,
       createdAt: moment().format(),
-      ...mapObjectByReq(req, body),
     };
 
     const doc = await Model.create(bodyOptions);

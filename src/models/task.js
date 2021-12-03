@@ -6,8 +6,8 @@ const taskSchema = new Schema({
   title: {
     type: String,
     required: true,
+    maxlength: 100,
   },
-  notes: String,
   status: {
     type: String,
     required: true,
