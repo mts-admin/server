@@ -62,14 +62,14 @@ const getUserBonuses = catchAsync(async (req, res, next) => {
 const getBonus = catchAsync(async (req, res, next) => {
   const bonus = await Bonus.findById(req.params.id).populate(
     'createdBy',
-    'name avatar -_id'
+    'name avatar'
   );
 
   if (!bonus) {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Bonus not found!'));
   }
 
-  if (!bonus.viewed && req.user._id.equals(bonus.userId)) {
+  if (!bonus.viewed && req.user._id.equals(bonus.userId.id)) {
     bonus.viewed = true;
     await bonus.save();
   }

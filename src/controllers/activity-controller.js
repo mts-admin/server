@@ -68,14 +68,14 @@ const getUserActivities = catchAsync(async (req, res, next) => {
 const getActivity = catchAsync(async (req, res, next) => {
   const activity = await Activity.findById(req.params.id).populate(
     'createdBy userId',
-    'name avatar -_id'
+    'name avatar'
   );
 
   if (!activity) {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Activity not found!'));
   }
 
-  if (!activity.viewed && req.user._id.equals(activity.userId)) {
+  if (!activity.viewed && req.user._id.equals(activity.userId.id)) {
     activity.viewed = true;
     await activity.save();
   }

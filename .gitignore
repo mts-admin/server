@@ -4,5 +4,7 @@ node_modules
 
 .env.*
 
+ecosystem.config.js
+
 src/public/img/bonuses/*
 src/public/img/users/*
