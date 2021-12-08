@@ -6,7 +6,7 @@ const config = require('../../config');
 class Email {
   constructor(user, url) {
     this.to = user.email;
-    this.from = `Private Management App <${config.emailFrom}>`;
+    this.from = `Private Dashboard App <${config.emailFrom}>`;
     this.firstName = user.name.split(' ')[0];
     this.url = url;
   }
@@ -60,7 +60,7 @@ class Email {
   async sendInvitation() {
     await this._send(
       'invite-user',
-      'You has been invited to Private Management App'
+      'You has been invited to Private Dashboard App'
     );
   }
 }
