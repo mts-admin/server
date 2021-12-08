@@ -6,13 +6,13 @@ const config = require('../../config');
 class Email {
   constructor(user, url) {
     this.to = user.email;
-    this.from = `MTS Admin <${config.emailFrom}>`;
+    this.from = `Private Management App <${config.emailFrom}>`;
     this.firstName = user.name.split(' ')[0];
     this.url = url;
   }
 
   _newTransport() {
-    if (config.nodeEnv === 'production') {
+    if (config.nodeEnv !== 'development') {
       return nodemailer.createTransport({
         service: 'SendGrid',
         auth: {
@@ -46,6 +46,7 @@ class Email {
       html,
       text: htmlToText(html),
     };
+
     await this._newTransport().sendMail(mailOptions);
   }
 
@@ -57,7 +58,10 @@ class Email {
   }
 
   async sendInvitation() {
-    await this._send('invite-user', 'You has been invited to MTS Admin site');
+    await this._send(
+      'invite-user',
+      'You has been invited to Private Management App'
+    );
   }
 }
 

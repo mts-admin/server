@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const morgan = require('morgan');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
@@ -14,7 +13,6 @@ const createError = require('http-errors');
 const router = require('./routes');
 const globalErrorHandler = require('./controllers/error-controller');
 const HTTP_CODE = require('./constants/http-codes');
-const config = require('../config');
 
 const app = express();
 
@@ -30,11 +28,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Set security HTTP headers (should be placed first)
 app.use(helmet());
-
-// Development logging
-if (config.nodeEnv === 'development') {
-  app.use(morgan('dev'));
-}
 
 // Limit requests from same IP
 const limiter = rateLimit({
