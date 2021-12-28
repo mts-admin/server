@@ -69,7 +69,7 @@ const getBonus = catchAsync(async (req, res, next) => {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Bonus not found!'));
   }
 
-  if (!bonus.viewed && req.user._id.equals(bonus.userId.id)) {
+  if (!bonus.viewed && req.user._id.equals(bonus.userId)) {
     bonus.viewed = true;
     await bonus.save();
   }
