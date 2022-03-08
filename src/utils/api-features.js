@@ -100,7 +100,7 @@ class APIFeatures {
   }
 
   countDocuments() {
-    return this.query.skip(0).limit(Infinity).countDocuments();
+    return this.query.skip(0).limit(999999999).countDocuments();
   }
 }
 
