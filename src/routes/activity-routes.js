@@ -7,6 +7,7 @@ const {
   createActivity,
   updateActivity,
   deleteActivity,
+  changeActivityStatus,
 } = require('../controllers/activity-controller');
 const {
   getActivitiesValidator,
@@ -39,7 +40,11 @@ router
   )
   .delete(restrictTo(USER_ROLE.ADMIN, USER_ROLE.OWNER), deleteActivity);
 
-router.patch('/:id/status', changeActivityStatusValidator, updateActivity);
+router.patch(
+  '/:id/status',
+  changeActivityStatusValidator,
+  changeActivityStatus
+);
 
 router.get(
   '/user/:userId',

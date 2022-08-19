@@ -6,7 +6,7 @@ const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
 const moment = require('../utils/moment');
 const HTTP_CODE = require('../constants/http-codes');
-const { deleteOne } = require('./handler-factory');
+const { deleteOne, updateOne } = require('./handler-factory');
 const { ACTIVITY_STATUS } = require('../constants/activity');
 
 const getMyActivities = catchAsync(async (req, res, next) => {
@@ -111,11 +111,13 @@ const createActivity = catchAsync(async (req, res, next) => {
 const updateActivity = catchAsync(async (req, res, next) => {
   const body = {
     ...req.body,
-    ...(req.body.status === ACTIVITY_STATUS.ACTIVE
-      ? {
-          becameActiveAt: moment().format(),
-        }
-      : { becameActiveAt: undefined }),
+    viewed: false,
+    ...(req.body.status === ACTIVITY_STATUS.ACTIVE && {
+      becameActiveAt: moment().format(),
+    }),
+    ...(req.body.status === ACTIVITY_STATUS.CREATED && {
+      becameActiveAt: undefined,
+    }),
   };
 
   const activity = await Activity.findByIdAndUpdate(req.params.id, body, {
@@ -132,6 +134,20 @@ const updateActivity = catchAsync(async (req, res, next) => {
   });
 });
 
+const changeActivityStatus = updateOne(Activity, {
+  match: {
+    _id: ['params', 'id'],
+    userId: ['user', 'id'],
+  },
+  populate: {
+    path: 'createdBy',
+    select: 'name avatar -_id',
+  },
+  body: {
+    viewed: true,
+  },
+});
+
 const deleteActivity = deleteOne(Activity, {
   match: {
     _id: ['params', 'id'],
@@ -145,4 +161,5 @@ module.exports = {
   createActivity,
   updateActivity,
   deleteActivity,
+  changeActivityStatus,
 };
