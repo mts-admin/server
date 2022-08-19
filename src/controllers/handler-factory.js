@@ -43,7 +43,7 @@ const updateOne = (Model, { match, populate, body = {} }) =>
     const matchOptions = mapObjectByReq(req, match);
     const bodyOptions = {
       ...req.body,
-      ...mapObjectByReq(req, body),
+      ...body,
     };
 
     const doc = await Model.findOneAndUpdate(matchOptions, bodyOptions, {

@@ -35,7 +35,6 @@ const changeActivityStatusSchema = Joi.object({
       ACTIVITY_STATUS.ARCHIVED
     )
     .required(),
-  viewed: Joi.boolean().optional().default(true),
 });
 
 const getActivitiesValidator = celebrate({

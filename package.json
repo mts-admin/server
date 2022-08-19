@@ -7,9 +7,8 @@
     "node": ">=12.0.0"
   },
   "scripts": {
-    "dev": "pm2 start ecosystem.config.js && pm2 logs",
-    "restart-dev": "pm2 flush && pm2 delete 0 && npm run dev",
-    "start": "npm run dev",
+    "start": "pm2 start ecosystem.config.js && pm2 logs",
+    "restart": "pm2 restart ecosystem.config.js && pm2 logs",
     "debug": "ndb server.js"
   },
   "author": "Vitalii Chornous",
