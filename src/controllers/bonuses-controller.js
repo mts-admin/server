@@ -112,13 +112,14 @@ const createBonus = catchAsync(async (req, res, next) => {
 });
 
 const updateBonus = catchAsync(async (req, res, next) => {
-  const bonus = await Bonus.findByIdAndUpdate(
-    req.params.id,
-    R.omit(['image'], req.body),
-    {
-      new: true,
-    }
-  ).populate('createdBy', 'name avatar -_id');
+  const body = {
+    ...R.omit(['image'], req.body),
+    viewed: false,
+  };
+
+  const bonus = await Bonus.findByIdAndUpdate(req.params.id, body, {
+    new: true,
+  }).populate('createdBy', 'name avatar -_id');
 
   if (!bonus) {
     return next(createError(HTTP_CODE.NOT_FOUND, 'Bonus not found!'));
